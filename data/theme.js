@@ -17,3 +17,20 @@ export const colors = {
 		headerTextColor: '#f0c4f0',
 	},
 };
+
+export const sizes = {
+	// Global sizes
+	base: 8,
+	font: 14,
+	radius: 12,
+	padding: 24,
+	headerHeight: 300,
+
+	// Font sizes
+	heading: 22,
+	body1: 30,
+	body2: 22,
+	body3: 16,
+	body4: 14,
+	body5: 12,
+};
