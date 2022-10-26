@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 
 import {
 	SafeAreaView,
@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 
 import { WebView } from 'react-native-webview';
+import useFetch from '../hooks/useFetch';
 
 const { width, height } = Dimensions.get('window');
 
@@ -30,7 +31,24 @@ const styles = {
 	},
 };
 
+const fetcher = () => fetch(LOCATION_URL).then((res) => res.json());
+const LOCATION_URL =
+	'https://wmp.interaction.courses/api/v1/?apiKey=n1FVp837&mode=read&endpoint=locations&order=asc';
+
 export default function NowPlaying() {
+	const { execute, status, value, error } = useFetch(fetcher, true);
+
+	// const fetchData = async (url) => {
+	// 	await fetch(url)
+	// 		.then((res) => res.json())
+	// 		.then((res) => console.log(res))
+	// 		.catch((e) => console.log(e));
+	// };
+
+	// useEffect(() => {
+	// 	fetchData(LOCATION_URL);
+	// }, []);
+
 	const [webViewState, setWebViewState] = useState({
 		loaded: false,
 		actioned: false,
@@ -63,7 +81,6 @@ export default function NowPlaying() {
 	return (
 		<SafeAreaView>
 			<View style={styles.container}>
-				{/* <View style={styles.webViewContainer}> */}
 				<WebView
 					ref={(ref) => (webViewRef.current = ref)}
 					originWhitelist={['*']}
@@ -74,7 +91,7 @@ export default function NowPlaying() {
 					onLoad={webViewLoaded}
 					style={styles.webView}
 				/>
-				{/* </View> */}
+				{status === 'success' && <Text>{JSON.stringify(value)}</Text>}
 				{webViewState && (
 					<View style={styles.buttonContainer}>
 						<Button onPress={handleReloadPress} title="Reload WebView" />
@@ -84,6 +101,7 @@ export default function NowPlaying() {
 								!webViewState.actioned ? 'Start Playback' : 'Stop Playback'
 							}
 						/>
+						<Button onPress={execute} title="Fetch" />
 					</View>
 				)}
 			</View>
