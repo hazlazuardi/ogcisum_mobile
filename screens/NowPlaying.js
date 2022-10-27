@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 
 import {
 	SafeAreaView,
@@ -57,7 +57,7 @@ export default function NowPlaying() {
 		// console.log('allSam: ', allSam);
 		// console.log('allStl: ', allStl);
 		const filteredStl = allStl
-			.filter((stl) => stl.locations_id === '3')
+			.filter((stl) => stl.locations_id === nearLoc.id)
 			.map((stl) => stl);
 		const sidRef = filteredStl.map((stl) => stl.samples_id);
 		const filteredSam = allSam
@@ -84,9 +84,15 @@ export default function NowPlaying() {
 		// return filteredSample;
 	}
 
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	const memozedNearby = useMemo(() => nearby, [nearby.distance]);
 	useEffect(() => {
 		// webViewRef.current.injectJavaScript(`setupParts([${dummySample})]`);
-		if (nearby && statusSTL === 'success' && statusSamples === 'success') {
+		if (
+			memozedNearby &&
+			statusSTL === 'success' &&
+			statusSamples === 'success'
+		) {
 			// console.log(getSamplesFromLocations(nearby, samples, samplesToLocations));
 			const sams = getSamplesFromLocations(nearby, samples, samplesToLocations);
 			const rec = sams.map((sample) => {
@@ -97,7 +103,7 @@ export default function NowPlaying() {
 			console.log('dummy', JSON.stringify(dummySample));
 			console.log('real', JSON.stringify(rec).replace(/\\/g, ''));
 		}
-	}, []);
+	}, [memozedNearby]);
 
 	function getSamples(location) {
 		//  TODO
@@ -127,7 +133,7 @@ export default function NowPlaying() {
 
 	function handleActionPress() {
 		const sampleStr = JSON.stringify(recData);
-		const strdum = JSON.stringify(dummySample);
+		// const strdum = JSON.stringify(dummySample);
 		if (!webViewState.actioned) {
 			webViewRef.current.injectJavaScript(`setupParts(${sampleStr})`);
 			webViewRef.current.injectJavaScript('startPlayback()');
@@ -143,19 +149,19 @@ export default function NowPlaying() {
 	return (
 		<SafeAreaView style={styles.safeContainer}>
 			<ScrollView contentContainerStyle={styles.container}>
-				{/* <View style={styles.webViewContainer}> */}
-				<WebView
-					ref={(ref) => (webViewRef.current = ref)}
-					originWhitelist={['*']}
-					source={{
-						// uri: 'https://wmp.interaction.courses/test-webview/',
-						uri: 'https://wmp.interaction.courses/playback-webview/',
-					}}
-					pullToRefreshEnabled={true}
-					onLoad={webViewLoaded}
-					style={styles.webView}
-				/>
-				{/* </View> */}
+				<View style={styles.webViewContainer}>
+					<WebView
+						ref={(ref) => (webViewRef.current = ref)}
+						originWhitelist={['*']}
+						source={{
+							// uri: 'https://wmp.interaction.courses/test-webview/',
+							uri: 'https://wmp.interaction.courses/playback-webview/',
+						}}
+						pullToRefreshEnabled={true}
+						onLoad={webViewLoaded}
+						style={styles.webView}
+					/>
+				</View>
 				{webViewState && (
 					<View style={styles.buttonContainer}>
 						<Button onPress={handleReloadPress} title="Reload WebView" />

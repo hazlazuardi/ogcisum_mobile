@@ -35,6 +35,7 @@ export default function BottomTabBar({ navigation }) {
 
 function TabIcon({ focused, icon, type }) {
 	const location = useLocation();
+	// console.log(location);
 	if (icon !== icons.logoWhite) {
 		return (
 			<View style={styles.tabIconContainer}>
@@ -69,11 +70,11 @@ function TabIcon({ focused, icon, type }) {
 							},
 						]}
 					/>
-					<Text style={{ color: 'black' }}>
-						{/* {location.nearby.id}
-						{location.nearby.location} */}
-						There's Music Nearby
-					</Text>
+					{location.nearby.distance?.nearby && (
+						<View>
+							<Text style={{ color: 'black' }}>There's Music Nearby</Text>
+						</View>
+					)}
 				</View>
 			);
 		}
