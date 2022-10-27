@@ -20,8 +20,8 @@ export default function useFetch(asyncFunction, immediate = true) {
 				setValue(response);
 				setStatus('success');
 			})
-			.catch((error) => {
-				setError(error);
+			.catch((e) => {
+				setError(e);
 				setStatus('error');
 			});
 	}, [asyncFunction]);

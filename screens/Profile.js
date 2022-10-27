@@ -42,6 +42,7 @@ const styles = {
 export default function Profile() {
 	const [photoState, setPhotoState] = useState({});
 
+	console.log(photoState);
 	async function handleChangePress() {
 		const result = await launchImageLibrary();
 		if (typeof result.assets[0] == 'object') {

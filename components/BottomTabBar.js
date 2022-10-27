@@ -46,8 +46,8 @@ function TabIcon({ focused, icon, type }) {
 						styles.tabIconImage,
 						{
 							tintColor: focused
-								? colors.blackColorTranslucentMore
-								: colors.blackColorTranslucentLess,
+								? colors.white
+								: colors.whiteColorTranslucentLess,
 						},
 					]}
 				/>
@@ -57,7 +57,7 @@ function TabIcon({ focused, icon, type }) {
 	if (icon === icons.logoWhite) {
 		if (typeof location !== 'undefined') {
 			return (
-				<View>
+				<View style={styles.tabLogoContainer}>
 					<Image
 						source={icon}
 						resizeMode="center"
@@ -65,14 +65,14 @@ function TabIcon({ focused, icon, type }) {
 							styles.tabLogoImage,
 							{
 								tintColor: focused
-									? colors.blackColorTranslucentMore
-									: colors.blackColorTranslucentLess,
+									? colors.white
+									: colors.whiteColorTranslucentLess,
 							},
 						]}
 					/>
 					{location.nearby.distance?.nearby && (
 						<View>
-							<Text style={{ color: 'black' }}>There's Music Nearby</Text>
+							<Text style={styles.tabLogoText}>There's Music Nearby</Text>
 						</View>
 					)}
 				</View>
@@ -85,6 +85,7 @@ function tabOptions(icon) {
 	return {
 		tabBarIcon: ({ focused }) => <TabIcon focused={focused} icon={icon} />,
 		tabBarShowLabel: false,
+		tabBarStyle: styles.tabContainer,
 	};
 }
 
@@ -102,5 +103,17 @@ const styles = StyleSheet.create({
 	tabLogoImage: {
 		width: 60,
 		height: 30,
+	},
+	tabContainer: {
+		backgroundColor: colors.purpleColorLighter,
+	},
+	tabLogoContainer: {
+		display: 'flex',
+		justifyContent: 'center',
+		alignItems: 'center',
+	},
+	tabLogoText: {
+		color: colors.white,
+		textAlign: 'center',
 	},
 });

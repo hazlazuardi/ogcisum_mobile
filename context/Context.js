@@ -19,20 +19,16 @@ export default function LocationProvider({ children }) {
 	const [location, dispatch] = useReducer(locationReducer, initialLocation);
 
 	// Fetch Samples
-	const {
-		execute: updateSamples,
-		status: statusSamples,
-		value: samples,
-		error: errorSamples,
-	} = useFetch(samplesFetcher, true);
+	const { status: statusSamples, value: samples } = useFetch(
+		samplesFetcher,
+		true,
+	);
 
 	// Fetch Samples to Locations
-	const {
-		execute: updateSamplesToLocations,
-		status: statusSTL,
-		value: samplesToLocations,
-		error: errorSTL,
-	} = useFetch(samplesToLocationsFetcher, true);
+	const { status: statusSTL, value: samplesToLocations } = useFetch(
+		samplesToLocationsFetcher,
+		true,
+	);
 
 	return (
 		<Context.Provider value={location}>

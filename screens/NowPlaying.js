@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
-
+import { useIsFocused } from '@react-navigation/native';
 import {
 	SafeAreaView,
 	ScrollView,
@@ -9,6 +9,7 @@ import {
 	Text,
 	Button,
 	StyleSheet,
+	TouchableOpacity,
 } from 'react-native';
 
 import { WebView } from 'react-native-webview';
@@ -17,9 +18,8 @@ import {
 	useSamples,
 	useSamplesToLocations,
 } from '../context/Context';
-import { LOCATION_URL } from '../data/constants';
 import { dummySample } from '../data/dummy';
-import useFetch from '../hooks/useFetch';
+import { colors, sizes } from '../data/theme';
 
 const { width, height } = Dimensions.get('window');
 
@@ -30,14 +30,27 @@ const styles = StyleSheet.create({
 		paddingBottom: 20,
 	},
 	webViewContainer: {
-		height: height / 2,
-		borderWidth: 3,
+		// height: height / 2,
+		// borderWidth: 3,
 		marginBottom: 20,
 	},
 	webView: {},
 	buttonContainer: {
 		flexDirection: 'row',
 		justifyContent: 'space-around',
+	},
+	playButton: {
+		backgroundColor: colors.purpleColorLighter,
+		paddingHorizontal: sizes.padding,
+		paddingVertical: sizes.padding / 2,
+		width: '100%',
+		display: 'flex',
+		justifyContent: 'center',
+		alignItems: 'center',
+		borderRadius: sizes.radius,
+	},
+	playButtonText: {
+		color: colors.white,
 	},
 });
 
@@ -85,11 +98,11 @@ export default function NowPlaying() {
 	}
 
 	// eslint-disable-next-line react-hooks/exhaustive-deps
-	const memozedNearby = useMemo(() => nearby, [nearby.distance]);
+	const memoizedNearby = useMemo(() => nearby, [nearby.distance]);
 	useEffect(() => {
 		// webViewRef.current.injectJavaScript(`setupParts([${dummySample})]`);
 		if (
-			memozedNearby &&
+			memoizedNearby &&
 			statusSTL === 'success' &&
 			statusSamples === 'success'
 		) {
@@ -103,7 +116,8 @@ export default function NowPlaying() {
 			console.log('dummy', JSON.stringify(dummySample));
 			console.log('real', JSON.stringify(rec).replace(/\\/g, ''));
 		}
-	}, [memozedNearby]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [memoizedNearby]);
 
 	function getSamples(location) {
 		//  TODO
@@ -112,6 +126,13 @@ export default function NowPlaying() {
 		//  Filter samples by samples_id
 		// Make a list of filtered recording data
 	}
+
+	const isFocused = useIsFocused();
+	useEffect(() => {
+		if (isFocused) {
+			webViewRef.current.reload();
+		}
+	}, [isFocused]);
 
 	const [webViewState, setWebViewState] = useState({
 		loaded: false,
@@ -126,10 +147,10 @@ export default function NowPlaying() {
 		});
 	}
 
-	function handleReloadPress() {
-		// webViewRef.current.injectJavaScript(`setupParts(${[...dummySample]})`);
-		webViewRef.current.reload();
-	}
+	// function handleReloadPress() {
+	// 	// webViewRef.current.injectJavaScript(`setupParts(${[...dummySample]})`);
+	// 	webViewRef.current.reload();
+	// }
 
 	function handleActionPress() {
 		const sampleStr = JSON.stringify(recData);
@@ -139,6 +160,7 @@ export default function NowPlaying() {
 			webViewRef.current.injectJavaScript('startPlayback()');
 		} else {
 			webViewRef.current.injectJavaScript('stopPlayback()');
+			// webViewRef.current.reload();
 		}
 		setWebViewState({
 			...webViewState,
@@ -164,13 +186,15 @@ export default function NowPlaying() {
 				</View>
 				{webViewState && (
 					<View style={styles.buttonContainer}>
-						<Button onPress={handleReloadPress} title="Reload WebView" />
-						<Button
+						{/* <Button onPress={handleReloadPress} title="Reload WebView" /> */}
+						<TouchableOpacity
+							style={styles.playButton}
 							onPress={handleActionPress}
-							title={
-								!webViewState.actioned ? 'Start Playback' : 'Stop Playback'
-							}
-						/>
+						>
+							<Text style={styles.playButtonText}>
+								{!webViewState.actioned ? 'Play Music' : 'Stop Music'}
+							</Text>
+						</TouchableOpacity>
 						{/* <Button onPress={execute} title="Fetch" /> */}
 					</View>
 				)}

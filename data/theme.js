@@ -4,6 +4,10 @@ export const colors = {
 	blueColorDarker: '#2D3DE8',
 	blackColorTranslucentLess: 'rgba(0,0,0,0.35)',
 	blackColorTranslucentMore: 'rgba(0,0,0,0.7)',
+	whiteColorTranslucentLess: 'rgba(255,255,255,0.35)',
+	whiteColorTranslucentMore: 'rgba(255,255,255,0.7)',
+	white: 'rgba(255,255,255,1)',
+
 	light: {
 		bgColor: '#ffffff',
 		fgColor: '#800080',

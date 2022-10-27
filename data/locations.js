@@ -89,7 +89,6 @@ export const locations = [
 	},
 ];
 
-
 // const dummyUserLoc = [-27.498248114899546, 153.01788081097033]
 // long = 27.497963 — 153.016689
 
