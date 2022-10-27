@@ -1,14 +1,12 @@
 // Import React Native
 import React, { useState, useEffect } from 'react';
 import {
-	PermissionsAndroid,
 	StyleSheet,
 	Appearance,
 	View,
 	SafeAreaView,
 	Text,
 	Image,
-	Platform,
 } from 'react-native';
 
 // Import React Native Maps
@@ -20,6 +18,7 @@ import { getDistance } from 'geolib';
 
 // Import Locations Data
 import { locations } from '../data/locations';
+import { useLocationDispatch } from '../context/Context';
 
 // Define Stylesheet
 const styles = StyleSheet.create({
@@ -64,6 +63,8 @@ function NearbyLocation(props) {
 
 // Main component for displaying the map and markers
 export default function Map() {
+	const dispatch = useLocationDispatch();
+
 	// Convert string-based latlong to object-based on each location
 	const updatedLocations = locations.map((location) => {
 		const latlong = location.latlong.split(', ');
@@ -91,37 +92,10 @@ export default function Map() {
 	// Only Android needs extra code to check for permissions (in addition to android/app/src/main/AndroidManifest.xml)
 	// iOS relies on ios/mapApp/Info.plist
 	useEffect(() => {
-		async function requestAndroidLocationPermission() {
-			try {
-				const granted = await PermissionsAndroid.request(
-					PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-					{
-						title: 'Location Permission',
-						message: 'This app will put your location on the map.',
-						buttonNeutral: 'Ask Me Later',
-						buttonNegative: 'Cancel',
-						buttonPositive: 'OK',
-					},
-				);
-				if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-					setMapState({
-						...mapState,
-						locationPermission: true,
-					});
-				}
-			} catch (error) {
-				console.warn(error);
-			}
-		}
-
-		if (Platform.OS === 'android') {
-			requestAndroidLocationPermission();
-		} else {
-			setMapState({
-				...mapState,
-				locationPermission: true,
-			});
-		}
+		setMapState({
+			...mapState,
+			locationPermission: true,
+		});
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
@@ -142,7 +116,6 @@ export default function Map() {
 		return nearestLocations.shift();
 	}
 
-	// Only watch the user's current location when device permission granted
 	if (mapState.locationPermission) {
 		Geolocation.watchPosition(
 			(position) => {
@@ -156,10 +129,46 @@ export default function Map() {
 					userLocation,
 					nearbyLocation: nearbyLocation,
 				});
+				dispatch({
+					type: 'updated',
+					nearby: nearbyLocation,
+					user: userLocation,
+				});
 			},
 			(error) => console.log(error),
 		);
 	}
+
+	// Only watch the user's current location when device permission granted
+	// useEffect(() => {
+	// 	if (mapState.locationPermission) {
+	// 		Geolocation.watchPosition(
+	// 			(position) => {
+	// 				const userLocation = {
+	// 					latitude: position.coords.latitude,
+	// 					longitude: position.coords.longitude,
+	// 				};
+	// 				const nearbyLocation = calculateDistance(userLocation);
+	// 				setMapState({
+	// 					...mapState,
+	// 					userLocation,
+	// 					nearbyLocation: nearbyLocation,
+	// 				});
+	// 				dispatch({
+	// 					type: 'updated',
+	// 					nearby: nearbyLocation,
+	// 					user: userLocation,
+	// 				});
+	// 			},
+	// 			(error) => console.log(error),
+	// 		);
+	// 	}
+	// 	return () => {
+	// 		Geolocation.clearWatch();
+	// 	};
+
+	// 	// eslint-disable-next-line react-hooks/exhaustive-deps
+	// }, []);
 
 	return (
 		<>

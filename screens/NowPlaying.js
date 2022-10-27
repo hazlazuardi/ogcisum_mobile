@@ -8,16 +8,26 @@ import {
 	Dimensions,
 	Text,
 	Button,
+	StyleSheet,
 } from 'react-native';
 
 import { WebView } from 'react-native-webview';
+import {
+	useLocation,
+	useSamples,
+	useSamplesToLocations,
+} from '../context/Context';
+import { LOCATION_URL } from '../data/constants';
+import { dummySample } from '../data/dummy';
 import useFetch from '../hooks/useFetch';
 
 const { width, height } = Dimensions.get('window');
 
-const styles = {
+const styles = StyleSheet.create({
+	safeContainer: {},
 	container: {
-		padding: 20,
+		paddingHorizontal: 20,
+		paddingBottom: 20,
 	},
 	webViewContainer: {
 		height: height / 2,
@@ -29,25 +39,65 @@ const styles = {
 		flexDirection: 'row',
 		justifyContent: 'space-around',
 	},
-};
+});
 
-const fetcher = () => fetch(LOCATION_URL).then((res) => res.json());
-const LOCATION_URL =
-	'https://wmp.interaction.courses/api/v1/?apiKey=n1FVp837&mode=read&endpoint=locations&order=asc';
-
+// const fetcher = async () => await fetch(LOCATION_URL).then((res) => res.json());
 export default function NowPlaying() {
-	const { execute, status, value, error } = useFetch(fetcher, true);
+	// const { execute, status, value, error } = useFetch(fetcher, true);
 
-	// const fetchData = async (url) => {
-	// 	await fetch(url)
-	// 		.then((res) => res.json())
-	// 		.then((res) => console.log(res))
-	// 		.catch((e) => console.log(e));
-	// };
+	const { samples, statusSamples } = useSamples();
+	const { samplesToLocations, statusSTL } = useSamplesToLocations();
+	const { nearby } = useLocation();
+	const [recData, setRecData] = useState();
+	// console.log('samples: ', samples);
+	// console.log('stl: ', samplesToLocations);
 
-	// useEffect(() => {
-	// 	fetchData(LOCATION_URL);
-	// }, []);
+	function getSamplesFromLocations(nearLoc, allSam, allStl) {
+		// console.log('nearf: ', typeof nearLoc.id);
+		// console.log('allSam: ', allSam);
+		// console.log('allStl: ', allStl);
+		const filteredStl = allStl
+			.filter((stl) => stl.locations_id === '2')
+			.map((stl) => stl);
+		const sidRef = filteredStl.map((stl) => stl.samples_id);
+		const filteredSam = allSam
+			.filter((sam) => sidRef.includes(sam.id))
+			.map((sam) => sam);
+		// const filteredSamples = allSam
+		// 	.filter(sam => sam.id === )
+		return filteredSam;
+		// const filteredSTL = allStl
+		// 	.filter((stl) => {
+		// 		stl.location_id === nearLoc.id;
+		// 	})
+		// 	.map((stl) => stl);
+		// const filteredSampleIDs = filteredSTL.map((stl) => stl.samples_id);
+		// const filteredSample = allSam
+		// 	?.filter((sample) => filteredSampleIDs.include(sample.id))
+		// 	.map((sample) => sample);
+		// return filteredSample;
+	}
+
+	useEffect(() => {
+		// webViewRef.current.injectJavaScript('setupParts(samples)');
+		if (nearby && statusSTL === 'success' && statusSamples === 'success') {
+			// console.log(getSamplesFromLocations(nearby, samples, samplesToLocations));
+			const sams = getSamplesFromLocations(nearby, samples, samplesToLocations);
+			const rec = sams.map((sample) => {
+				return { type: sample.type, recording_data: sample.recording_data };
+			});
+			setRecData(rec);
+			console.log(rec);
+		}
+	}, []);
+
+	function getSamples(location) {
+		//  TODO
+		// Filter samples to location by location_id
+		// Make a list of samples_id to filter samples
+		//  Filter samples by samples_id
+		// Make a list of filtered recording data
+	}
 
 	const [webViewState, setWebViewState] = useState({
 		loaded: false,
@@ -63,6 +113,7 @@ export default function NowPlaying() {
 	}
 
 	function handleReloadPress() {
+		// webViewRef.current.injectJavaScript(`setupParts(${[...dummySample]})`);
 		webViewRef.current.reload();
 	}
 
@@ -79,19 +130,22 @@ export default function NowPlaying() {
 	}
 
 	return (
-		<SafeAreaView>
-			<View style={styles.container}>
-				<WebView
-					ref={(ref) => (webViewRef.current = ref)}
-					originWhitelist={['*']}
-					source={{
-						uri: 'https://wmp.interaction.courses/test-webview/',
-					}}
-					pullToRefreshEnabled={true}
-					onLoad={webViewLoaded}
-					style={styles.webView}
-				/>
-				{status === 'success' && <Text>{JSON.stringify(value)}</Text>}
+		<SafeAreaView style={styles.safeContainer}>
+			<ScrollView contentContainerStyle={styles.container}>
+				<View style={styles.webViewContainer}>
+					<WebView
+						ref={(ref) => (webViewRef.current = ref)}
+						originWhitelist={['*']}
+						source={{
+							// uri: 'https://wmp.interaction.courses/test-webview/',
+							uri: 'https://wmp.interaction.courses/playback-webview/',
+						}}
+						pullToRefreshEnabled={true}
+						onLoad={webViewLoaded}
+						style={styles.webView}
+						useWebView2={true}
+					/>
+				</View>
 				{webViewState && (
 					<View style={styles.buttonContainer}>
 						<Button onPress={handleReloadPress} title="Reload WebView" />
@@ -101,10 +155,17 @@ export default function NowPlaying() {
 								!webViewState.actioned ? 'Start Playback' : 'Stop Playback'
 							}
 						/>
-						<Button onPress={execute} title="Fetch" />
+						{/* <Button onPress={execute} title="Fetch" /> */}
 					</View>
 				)}
-			</View>
+				{recData &&
+					recData.map((rec) => (
+						<View key={rec.recording_data}>
+							<Text>{typeof []}</Text>
+							<Text>{rec.recording_data}</Text>
+						</View>
+					))}
+			</ScrollView>
 		</SafeAreaView>
 	);
 }

@@ -1,13 +1,14 @@
 import React from 'react';
 
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Image, StyleSheet, View } from 'react-native';
+import { Image, StyleSheet, Text, View } from 'react-native';
 
 import icons from '../data/icons';
 import { colors } from '../data/theme';
 import Map from '../screens/Map';
 import NowPlaying from '../screens/NowPlaying';
 import Profile from '../screens/Profile';
+import { useLocation } from '../context/Context';
 
 const Tab = createBottomTabNavigator();
 export default function BottomTabBar({ navigation }) {
@@ -21,7 +22,7 @@ export default function BottomTabBar({ navigation }) {
 			<Tab.Screen
 				name="Now Playing"
 				children={() => <NowPlaying navigation={navigation} />}
-				options={tabOptions(icons.appLaunchIcon)}
+				options={tabOptions(icons.logoWhite)}
 			/>
 			<Tab.Screen
 				name="Profile"
@@ -33,7 +34,8 @@ export default function BottomTabBar({ navigation }) {
 }
 
 function TabIcon({ focused, icon, type }) {
-	if (icon !== 'nowPlaying') {
+	const location = useLocation();
+	if (icon !== icons.logoWhite) {
 		return (
 			<View style={styles.tabIconContainer}>
 				<Image
@@ -50,6 +52,30 @@ function TabIcon({ focused, icon, type }) {
 				/>
 			</View>
 		);
+	}
+	if (icon === icons.logoWhite) {
+		if (typeof location !== 'undefined') {
+			return (
+				<View>
+					<Image
+						source={icon}
+						resizeMode="center"
+						style={[
+							styles.tabLogoImage,
+							{
+								tintColor: focused
+									? colors.blackColorTranslucentMore
+									: colors.blackColorTranslucentLess,
+							},
+						]}
+					/>
+					<Text style={{ color: 'black' }}>
+						{location.nearby.id}
+						{location.nearby.location}
+					</Text>
+				</View>
+			);
+		}
 	}
 }
 
@@ -69,6 +95,10 @@ const styles = StyleSheet.create({
 	},
 	tabIconImage: {
 		width: 30,
+		height: 30,
+	},
+	tabLogoImage: {
+		width: 60,
 		height: 30,
 	},
 });
