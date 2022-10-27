@@ -70,8 +70,9 @@ function TabIcon({ focused, icon, type }) {
 						]}
 					/>
 					<Text style={{ color: 'black' }}>
-						{location.nearby.id}
-						{location.nearby.location}
+						{/* {location.nearby.id}
+						{location.nearby.location} */}
+						There's Music Nearby
 					</Text>
 				</View>
 			);

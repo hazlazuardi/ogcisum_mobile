@@ -57,12 +57,18 @@ export default function NowPlaying() {
 		// console.log('allSam: ', allSam);
 		// console.log('allStl: ', allStl);
 		const filteredStl = allStl
-			.filter((stl) => stl.locations_id === '2')
+			.filter((stl) => stl.locations_id === '3')
 			.map((stl) => stl);
 		const sidRef = filteredStl.map((stl) => stl.samples_id);
 		const filteredSam = allSam
 			.filter((sam) => sidRef.includes(sam.id))
-			.map((sam) => sam);
+			.map((sam) => {
+				const parsedRec = {
+					...sam,
+					recording_data: JSON.parse(sam.recording_data),
+				};
+				return parsedRec;
+			});
 		// const filteredSamples = allSam
 		// 	.filter(sam => sam.id === )
 		return filteredSam;
@@ -79,7 +85,7 @@ export default function NowPlaying() {
 	}
 
 	useEffect(() => {
-		// webViewRef.current.injectJavaScript('setupParts(samples)');
+		// webViewRef.current.injectJavaScript(`setupParts([${dummySample})]`);
 		if (nearby && statusSTL === 'success' && statusSamples === 'success') {
 			// console.log(getSamplesFromLocations(nearby, samples, samplesToLocations));
 			const sams = getSamplesFromLocations(nearby, samples, samplesToLocations);
@@ -88,6 +94,8 @@ export default function NowPlaying() {
 			});
 			setRecData(rec);
 			console.log(rec);
+			console.log('dummy', JSON.stringify(dummySample));
+			console.log('real', JSON.stringify(rec).replace(/\\/g, ''));
 		}
 	}, []);
 
@@ -118,7 +126,10 @@ export default function NowPlaying() {
 	}
 
 	function handleActionPress() {
+		const sampleStr = JSON.stringify(recData);
+		const strdum = JSON.stringify(dummySample);
 		if (!webViewState.actioned) {
+			webViewRef.current.injectJavaScript(`setupParts(${sampleStr})`);
 			webViewRef.current.injectJavaScript('startPlayback()');
 		} else {
 			webViewRef.current.injectJavaScript('stopPlayback()');
@@ -132,20 +143,19 @@ export default function NowPlaying() {
 	return (
 		<SafeAreaView style={styles.safeContainer}>
 			<ScrollView contentContainerStyle={styles.container}>
-				<View style={styles.webViewContainer}>
-					<WebView
-						ref={(ref) => (webViewRef.current = ref)}
-						originWhitelist={['*']}
-						source={{
-							// uri: 'https://wmp.interaction.courses/test-webview/',
-							uri: 'https://wmp.interaction.courses/playback-webview/',
-						}}
-						pullToRefreshEnabled={true}
-						onLoad={webViewLoaded}
-						style={styles.webView}
-						useWebView2={true}
-					/>
-				</View>
+				{/* <View style={styles.webViewContainer}> */}
+				<WebView
+					ref={(ref) => (webViewRef.current = ref)}
+					originWhitelist={['*']}
+					source={{
+						// uri: 'https://wmp.interaction.courses/test-webview/',
+						uri: 'https://wmp.interaction.courses/playback-webview/',
+					}}
+					pullToRefreshEnabled={true}
+					onLoad={webViewLoaded}
+					style={styles.webView}
+				/>
+				{/* </View> */}
 				{webViewState && (
 					<View style={styles.buttonContainer}>
 						<Button onPress={handleReloadPress} title="Reload WebView" />
@@ -158,13 +168,17 @@ export default function NowPlaying() {
 						{/* <Button onPress={execute} title="Fetch" /> */}
 					</View>
 				)}
-				{recData &&
-					recData.map((rec) => (
-						<View key={rec.recording_data}>
-							<Text>{typeof []}</Text>
-							<Text>{rec.recording_data}</Text>
-						</View>
-					))}
+				{/* {recData && (
+					// recData.map((rec) => (
+					// 	<View key={rec.recording_data}>
+					// 		<Text>{rec.type}</Text>
+					// 		<Text>{rec.recording_data}</Text>
+					// 	</View>
+					// ))}
+					<View>
+						<Text>{JSON.stringify(recData).replace(/\\/g, '')}</Text>
+					</View>
+				)} */}
 			</ScrollView>
 		</SafeAreaView>
 	);
