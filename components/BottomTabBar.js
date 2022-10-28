@@ -1,19 +1,39 @@
 import React from 'react';
-
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import {
+	createBottomTabNavigator,
+	useBottomTabBarHeight,
+} from '@react-navigation/bottom-tabs';
 import { Image, StyleSheet, Text, View } from 'react-native';
 
 import icons from '../data/icons';
-import { colors } from '../data/theme';
+import { colors, sizes } from '../data/theme';
 import Map from '../screens/Map';
 import NowPlaying from '../screens/NowPlaying';
 import Profile from '../screens/Profile';
 import { useLocation } from '../context/Context';
+import LinearGradient from 'react-native-linear-gradient';
 
 const Tab = createBottomTabNavigator();
 export default function BottomTabBar({ navigation }) {
 	return (
-		<Tab.Navigator screenOptions={{ headerShown: false }}>
+		<Tab.Navigator
+			screenOptions={{
+				headerShown: false,
+				tabBarStyle: { height: 100 },
+				tabBarBackground: () => {
+					return (
+						<View>
+							<LinearGradient
+								start={{ x: 0, y: 0 }}
+								end={{ x: 0, y: 1 }}
+								colors={[colors.purpleColorLighter, colors.blueColorDarker]}
+								style={{ height: '100%' }}
+							/>
+						</View>
+					);
+				},
+			}}
+		>
 			<Tab.Screen
 				name="Map"
 				children={() => <Map navigation={navigation} />}
@@ -22,7 +42,7 @@ export default function BottomTabBar({ navigation }) {
 			<Tab.Screen
 				name="Now Playing"
 				children={() => <NowPlaying navigation={navigation} />}
-				options={tabOptions(icons.logoWhite)}
+				options={tabOptions(icons.logoWhite, true)}
 			/>
 			<Tab.Screen
 				name="Profile"
@@ -33,12 +53,33 @@ export default function BottomTabBar({ navigation }) {
 	);
 }
 
-function TabIcon({ focused, icon, type }) {
+function tabOptions(icon, isLogo) {
+	return {
+		tabBarIcon: ({ focused, size }) => (
+			<TabIcon focused={focused} icon={icon} isLogo={isLogo} size={size} />
+		),
+		tabBarShowLabel: false,
+		tabBarStyle: [styles.tabContainer, { height: 100 }],
+	};
+}
+
+function TabIcon({ focused, icon, isLogo, size }) {
 	const location = useLocation();
+	console.log(size);
+	console.log(isLogo);
 	// console.log(location);
-	if (icon !== icons.logoWhite) {
+	if (!isLogo) {
 		return (
-			<View style={styles.tabIconContainer}>
+			<View
+				style={[
+					styles.tabIconContainer,
+					{
+						backgroundColor: focused && colors.blackColorTranslucentLess,
+						padding: 20,
+						height: '100%',
+					},
+				]}
+			>
 				<Image
 					source={icon}
 					resizeMode="contain"
@@ -54,19 +95,27 @@ function TabIcon({ focused, icon, type }) {
 			</View>
 		);
 	}
-	if (icon === icons.logoWhite) {
+	if (isLogo) {
 		if (typeof location !== 'undefined') {
 			return (
-				<View style={styles.tabLogoContainer}>
+				<View
+					style={[
+						styles.tabLogoContainer,
+						{
+							backgroundColor: focused && colors.blackColorTranslucentLess,
+							width: '120%',
+							padding: 10,
+							height: '100%',
+						},
+					]}
+				>
 					<Image
 						source={icon}
-						resizeMode="center"
+						resizeMode="contain"
 						style={[
 							styles.tabLogoImage,
 							{
-								tintColor: focused
-									? colors.white
-									: colors.whiteColorTranslucentLess,
+								tintColor: focused ? colors.white : colors.white,
 							},
 						]}
 					/>
@@ -81,32 +130,22 @@ function TabIcon({ focused, icon, type }) {
 	}
 }
 
-function tabOptions(icon) {
-	return {
-		tabBarIcon: ({ focused }) => <TabIcon focused={focused} icon={icon} />,
-		tabBarShowLabel: false,
-		tabBarStyle: styles.tabContainer,
-	};
-}
-
 const styles = StyleSheet.create({
 	tabIconContainer: {
 		alignItems: 'center',
 		justifyContent: 'center',
-		height: 80,
-		width: 50,
+		height: '100%',
+		// width: '100%',
 	},
 	tabIconImage: {
 		width: 30,
 		height: 30,
 	},
 	tabLogoImage: {
-		width: 60,
 		height: 30,
+		width: 100,
 	},
-	tabContainer: {
-		backgroundColor: colors.purpleColorLighter,
-	},
+	tabContainer: {},
 	tabLogoContainer: {
 		display: 'flex',
 		justifyContent: 'center',
@@ -115,5 +154,6 @@ const styles = StyleSheet.create({
 	tabLogoText: {
 		color: colors.white,
 		textAlign: 'center',
+		fontSize: sizes.body5,
 	},
 });
