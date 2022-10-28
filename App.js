@@ -2,14 +2,14 @@ import React from 'react';
 
 import { NavigationContainer } from '@react-navigation/native';
 import BottomTabBar from './components/BottomTabBar';
-import LocationProvider from './context/Context';
+import StoreProvider from './context/Context';
 
 export default function App() {
 	return (
-		<LocationProvider>
+		<StoreProvider>
 			<NavigationContainer>
 				<BottomTabBar />
 			</NavigationContainer>
-		</LocationProvider>
+		</StoreProvider>
 	);
 }

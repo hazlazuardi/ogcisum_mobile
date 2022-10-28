@@ -20,6 +20,7 @@ import {
 } from '../context/Context';
 import { dummySample } from '../data/dummy';
 import { colors, sizes } from '../data/theme';
+import ButtonIOS from '../components/ButtonIOS';
 
 const { width, height } = Dimensions.get('window');
 
@@ -30,8 +31,8 @@ const styles = StyleSheet.create({
 		paddingBottom: 20,
 	},
 	webViewContainer: {
-		// height: height / 2,
-		// borderWidth: 3,
+		height: height / 2,
+		borderWidth: 3,
 		marginBottom: 20,
 	},
 	webView: {},
@@ -54,25 +55,32 @@ const styles = StyleSheet.create({
 	},
 });
 
-// const fetcher = async () => await fetch(LOCATION_URL).then((res) => res.json());
-export default function NowPlaying() {
-	// const { execute, status, value, error } = useFetch(fetcher, true);
+function PlayButton({ webViewState, handleActionPress }) {
+	return (
+		<ButtonIOS
+			text={!webViewState.actioned ? 'Play Music' : 'Stop Music'}
+			onPress={handleActionPress}
+		/>
+	);
+}
 
+export default function NowPlaying() {
 	const { samples, statusSamples } = useSamples();
 	const { samplesToLocations, statusSTL } = useSamplesToLocations();
-	const { nearby } = useLocation();
+	const { nearbyLocation } = useLocation();
 	const [recData, setRecData] = useState();
-	// console.log('samples: ', samples);
-	// console.log('stl: ', samplesToLocations);
 
 	function getSamplesFromLocations(nearLoc, allSam, allStl) {
 		// console.log('nearf: ', typeof nearLoc.id);
 		// console.log('allSam: ', allSam);
 		// console.log('allStl: ', allStl);
+		// Filter samples to location by location_id
 		const filteredStl = allStl
 			.filter((stl) => stl.locations_id === nearLoc.id)
 			.map((stl) => stl);
+		// Make a list of samples_id to filter samples
 		const sidRef = filteredStl.map((stl) => stl.samples_id);
+		//  Filter samples by samples_id
 		const filteredSam = allSam
 			.filter((sam) => sidRef.includes(sam.id))
 			.map((sam) => {
@@ -97,8 +105,11 @@ export default function NowPlaying() {
 		// return filteredSample;
 	}
 
-	// eslint-disable-next-line react-hooks/exhaustive-deps
-	const memoizedNearby = useMemo(() => nearby, [nearby.distance]);
+	const memoizedNearby = useMemo(
+		() => nearbyLocation,
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		[nearbyLocation.distance],
+	);
 	useEffect(() => {
 		// webViewRef.current.injectJavaScript(`setupParts([${dummySample})]`);
 		if (
@@ -106,26 +117,23 @@ export default function NowPlaying() {
 			statusSTL === 'success' &&
 			statusSamples === 'success'
 		) {
-			// console.log(getSamplesFromLocations(nearby, samples, samplesToLocations));
-			const sams = getSamplesFromLocations(nearby, samples, samplesToLocations);
+			// console.log(getSamplesFromLocations(nearbyLocation, samples, samplesToLocations));
+			const sams = getSamplesFromLocations(
+				nearbyLocation,
+				samples,
+				samplesToLocations,
+			);
 			const rec = sams.map((sample) => {
 				return { type: sample.type, recording_data: sample.recording_data };
 			});
+			// Make a list of filtered recording data
 			setRecData(rec);
-			console.log(rec);
-			console.log('dummy', JSON.stringify(dummySample));
-			console.log('real', JSON.stringify(rec).replace(/\\/g, ''));
+			// console.log(rec);
+			// console.log('dummy', JSON.stringify(dummySample));
+			// console.log('real', JSON.stringify(rec));
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [memoizedNearby]);
-
-	function getSamples(location) {
-		//  TODO
-		// Filter samples to location by location_id
-		// Make a list of samples_id to filter samples
-		//  Filter samples by samples_id
-		// Make a list of filtered recording data
-	}
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -147,14 +155,9 @@ export default function NowPlaying() {
 		});
 	}
 
-	// function handleReloadPress() {
-	// 	// webViewRef.current.injectJavaScript(`setupParts(${[...dummySample]})`);
-	// 	webViewRef.current.reload();
-	// }
-
 	function handleActionPress() {
 		const sampleStr = JSON.stringify(recData);
-		// const strdum = JSON.stringify(dummySample);
+		const strdum = JSON.stringify(dummySample);
 		if (!webViewState.actioned) {
 			webViewRef.current.injectJavaScript(`setupParts(${sampleStr})`);
 			webViewRef.current.injectJavaScript('startPlayback()');
@@ -168,6 +171,7 @@ export default function NowPlaying() {
 		});
 	}
 
+	console.log(nearbyLocation);
 	return (
 		<SafeAreaView style={styles.safeContainer}>
 			<ScrollView contentContainerStyle={styles.container}>
@@ -184,31 +188,17 @@ export default function NowPlaying() {
 						style={styles.webView}
 					/>
 				</View>
+				<View>
+					<Text>{nearbyLocation.location}</Text>
+					<Text>{`${nearbyLocation.suburb}, ${nearbyLocation.state}`}</Text>
+				</View>
+
 				{webViewState && (
-					<View style={styles.buttonContainer}>
-						{/* <Button onPress={handleReloadPress} title="Reload WebView" /> */}
-						<TouchableOpacity
-							style={styles.playButton}
-							onPress={handleActionPress}
-						>
-							<Text style={styles.playButtonText}>
-								{!webViewState.actioned ? 'Play Music' : 'Stop Music'}
-							</Text>
-						</TouchableOpacity>
-						{/* <Button onPress={execute} title="Fetch" /> */}
-					</View>
+					<PlayButton
+						handleActionPress={handleActionPress}
+						webViewState={webViewState}
+					/>
 				)}
-				{/* {recData && (
-					// recData.map((rec) => (
-					// 	<View key={rec.recording_data}>
-					// 		<Text>{rec.type}</Text>
-					// 		<Text>{rec.recording_data}</Text>
-					// 	</View>
-					// ))}
-					<View>
-						<Text>{JSON.stringify(recData).replace(/\\/g, '')}</Text>
-					</View>
-				)} */}
 			</ScrollView>
 		</SafeAreaView>
 	);

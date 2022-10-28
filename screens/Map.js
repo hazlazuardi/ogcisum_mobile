@@ -1,5 +1,5 @@
 // Import React Native
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
 	StyleSheet,
 	Appearance,
@@ -37,29 +37,6 @@ const styles = StyleSheet.create({
 	},
 });
 const colorScheme = Appearance.getColorScheme();
-
-// Component for displaying nearest location and whether it's within 100 metres
-function NearbyLocation(props) {
-	if (typeof props.location != 'undefined') {
-		return (
-			<SafeAreaView style={styles.nearbyLocationSafeAreaView}>
-				<View style={styles.nearbyLocationView}>
-					<Text style={styles.nearbyLocationText}>{props.location}</Text>
-					{props.distance.nearby && (
-						<Text
-							style={{
-								...styles.nearbyLocationText,
-								fontWeight: 'bold',
-							}}
-						>
-							Within 100 Metres!
-						</Text>
-					)}
-				</View>
-			</SafeAreaView>
-		);
-	}
-}
 
 // Main component for displaying the map and markers
 export default function Map() {
@@ -99,76 +76,62 @@ export default function Map() {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
-	// Function to retrieve location nearest to current user location
-	function calculateDistance(userLocation) {
-		const nearestLocations = mapState.locations
-			.map((location) => {
-				const metres = getDistance(userLocation, location.coordinates);
-				location['distance'] = {
-					metres: metres,
-					nearby: metres <= 100 ? true : false,
-				};
-				return location;
-			})
-			.sort((previousLocation, thisLocation) => {
-				return previousLocation.distance.metres - thisLocation.distance.metres;
-			});
-		return nearestLocations.shift();
-	}
-
-	if (mapState.locationPermission) {
-		Geolocation.watchPosition(
-			(position) => {
-				const userLocation = {
-					latitude: position.coords.latitude,
-					longitude: position.coords.longitude,
-				};
-				const nearbyLocation = calculateDistance(userLocation);
-				setMapState({
-					...mapState,
-					userLocation,
-					nearbyLocation: nearbyLocation,
-				});
-				dispatch({
-					type: 'updated',
-					nearby: nearbyLocation,
-					user: userLocation,
-				});
-			},
-			(error) => console.log(error),
-		);
-	}
-
+	const memoizedMapState = useMemo(
+		() => mapState,
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		[
+			mapState.userLocation,
+			mapState.locationPermission,
+			mapState.locations,
+			mapState.nearbyLocation,
+		],
+	);
 	// Only watch the user's current location when device permission granted
-	// useEffect(() => {
-	// 	if (mapState.locationPermission) {
-	// 		Geolocation.watchPosition(
-	// 			(position) => {
-	// 				const userLocation = {
-	// 					latitude: position.coords.latitude,
-	// 					longitude: position.coords.longitude,
-	// 				};
-	// 				const nearbyLocation = calculateDistance(userLocation);
-	// 				setMapState({
-	// 					...mapState,
-	// 					userLocation,
-	// 					nearbyLocation: nearbyLocation,
-	// 				});
-	// 				dispatch({
-	// 					type: 'updated',
-	// 					nearby: nearbyLocation,
-	// 					user: userLocation,
-	// 				});
-	// 			},
-	// 			(error) => console.log(error),
-	// 		);
-	// 	}
-	// 	return () => {
-	// 		Geolocation.clearWatch();
-	// 	};
+	useEffect(() => {
+		function calculateDistance(userLocation) {
+			const nearestLocations = memoizedMapState.locations
+				.map((location) => {
+					const metres = getDistance(userLocation, location.coordinates);
+					location['distance'] = {
+						metres: metres,
+						nearbyLocation: metres <= 100 ? true : false,
+					};
+					return location;
+				})
+				.sort((previousLocation, thisLocation) => {
+					return (
+						previousLocation.distance.metres - thisLocation.distance.metres
+					);
+				});
+			return nearestLocations.shift();
+		}
 
-	// 	// eslint-disable-next-line react-hooks/exhaustive-deps
-	// }, []);
+		if (memoizedMapState.locationPermission) {
+			Geolocation.watchPosition(
+				(position) => {
+					const userLocation = {
+						latitude: position.coords.latitude,
+						longitude: position.coords.longitude,
+					};
+					const nearbyLocation = calculateDistance(userLocation);
+					setMapState({
+						...memoizedMapState,
+						userLocation,
+						nearbyLocation: nearbyLocation,
+					});
+					dispatch({
+						type: 'updated',
+						nearbyLocation: nearbyLocation,
+						user: userLocation,
+					});
+				},
+				(error) => console.log(error),
+			);
+		}
+		return () => {
+			Geolocation.clearWatch();
+		};
+	}, [dispatch, memoizedMapState]);
 
 	return (
 		<>

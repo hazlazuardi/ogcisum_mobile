@@ -70,7 +70,7 @@ function TabIcon({ focused, icon, type }) {
 							},
 						]}
 					/>
-					{location.nearby.distance?.nearby && (
+					{location.nearbyLocation.distance?.nearbyLocation && (
 						<View>
 							<Text style={styles.tabLogoText}>There's Music Nearby</Text>
 						</View>

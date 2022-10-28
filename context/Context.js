@@ -5,18 +5,23 @@ import { SAMPLES_TO_LOCATIONS_URL, SAMPLES_URL } from '../data/constants';
 
 import useFetch from '../hooks/useFetch';
 
-const Context = createContext(null);
+const LocationContext = createContext(null);
 const LocationDispatchContext = createContext(null);
 const SamplesContext = createContext(null);
 const SamplesToLocationsContext = createContext(null);
+const ProfileContext = createContext(null);
 
 const samplesFetcher = async () =>
 	await fetch(SAMPLES_URL).then((res) => res.json());
 const samplesToLocationsFetcher = async () =>
 	await fetch(SAMPLES_TO_LOCATIONS_URL).then((res) => res.json());
 
-export default function LocationProvider({ children }) {
-	const [location, dispatch] = useReducer(locationReducer, initialLocation);
+export default function StoreProvider({ children }) {
+	const [locations, dispatchLocations] = useReducer(
+		locationsReducer,
+		initialLocations,
+	);
+	const [profile, dispatchProfile] = useReducer(profileReducer, initialProfile);
 
 	// Fetch Samples
 	const { status: statusSamples, value: samples } = useFetch(
@@ -31,27 +36,29 @@ export default function LocationProvider({ children }) {
 	);
 
 	return (
-		<Context.Provider value={location}>
-			<LocationDispatchContext.Provider value={dispatch}>
-				<SamplesContext.Provider
-					value={{ samples: samples?.samples, statusSamples }}
-				>
-					<SamplesToLocationsContext.Provider
-						value={{
-							samplesToLocations: samplesToLocations?.samples_to_locations,
-							statusSTL,
-						}}
+		<ProfileContext.Provider value={{ profile, dispatchProfile }}>
+			<LocationContext.Provider value={locations}>
+				<LocationDispatchContext.Provider value={dispatchLocations}>
+					<SamplesContext.Provider
+						value={{ samples: samples?.samples, statusSamples }}
 					>
-						{children}
-					</SamplesToLocationsContext.Provider>
-				</SamplesContext.Provider>
-			</LocationDispatchContext.Provider>
-		</Context.Provider>
+						<SamplesToLocationsContext.Provider
+							value={{
+								samplesToLocations: samplesToLocations?.samples_to_locations,
+								statusSTL,
+							}}
+						>
+							{children}
+						</SamplesToLocationsContext.Provider>
+					</SamplesContext.Provider>
+				</LocationDispatchContext.Provider>
+			</LocationContext.Provider>
+		</ProfileContext.Provider>
 	);
 }
 
 export function useLocation() {
-	return useContext(Context);
+	return useContext(LocationContext);
 }
 
 export function useLocationDispatch() {
@@ -65,13 +72,17 @@ export function useSamplesToLocations() {
 	return useContext(SamplesToLocationsContext);
 }
 
-function locationReducer(location, action) {
+export function useProfile() {
+	return useContext(ProfileContext);
+}
+
+function locationsReducer(state, action) {
 	switch (action.type) {
 		case 'updated': {
 			return {
-				...location,
+				...state,
 				user: action.user,
-				nearby: action.nearby,
+				nearbyLocation: action.nearbyLocation,
 			};
 		}
 		default: {
@@ -80,8 +91,24 @@ function locationReducer(location, action) {
 	}
 }
 
-const initialLocation = {
-	nearby: {},
+function profileReducer(state, action) {
+	switch (action.type) {
+		case 'updated': {
+			return {
+				...state,
+				photo: action.photo,
+			};
+		}
+		default: {
+			throw Error(`Unkown action: ${action.type}`);
+		}
+	}
+}
+
+const initialLocations = {
+	nearbyLocation: {},
 	nearbySamples: [],
 	user: {},
 };
+
+const initialProfile = {};
