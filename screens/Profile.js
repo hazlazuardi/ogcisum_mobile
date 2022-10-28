@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 import {
 	SafeAreaView,
@@ -7,10 +7,8 @@ import {
 	Image,
 	Dimensions,
 	Text,
-	Button,
 	StyleSheet,
 	TextInput,
-	Platform,
 	TouchableWithoutFeedback,
 	Keyboard,
 } from 'react-native';
@@ -51,21 +49,21 @@ const styles = StyleSheet.create({
 		flex: 1,
 	},
 	header: {
-		fontSize: sizes.heading,
+		fontSize: sizes.body1,
+	},
+	subtitle: {
+		fontSize: sizes.body3,
 	},
 });
 
 export default function Profile() {
-	const [photoState, setPhotoState] = useState({});
 	const { profile, dispatchProfile: dispatch } = useProfile();
 
-	console.log('photoState: ', photoState);
 	console.log('ctx: ', profile);
 	async function handleChangePress() {
 		await launchImageLibrary()
 			.then((result) => {
 				if (typeof result.assets[0] === 'object') {
-					setPhotoState(result.assets[0]);
 					dispatch({
 						type: 'setPhoto',
 						photo: result.assets[0],
@@ -75,58 +73,14 @@ export default function Profile() {
 			.catch((e) => console.log(e));
 	}
 
-	const hasPhoto = typeof photoState.uri !== 'undefined';
-
-	function Photo(props) {
-		if (hasPhoto) {
-			return (
-				<View style={styles.photoFullView}>
-					<Image
-						style={styles.photoFullImage}
-						resizeMode="cover"
-						source={{
-							uri: photoState.uri,
-							width: width,
-							height: height / 2,
-						}}
-					/>
-				</View>
-			);
-		} else {
-			return <View style={styles.photoEmptyView} />;
-		}
-	}
-
-	const [text, onChangeText] = useState('Useless Text');
+	const hasPhoto = typeof profile.photo.uri !== 'undefined';
 
 	return (
-		// <KeyboardAvoidingView enabled behavior={'padding'} style={styles.container}>
-		// 	<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-		// 		<View style={styles.container}>
-		// 			<Text>Edit Profile</Text>
-		// 			<Text>Mirror, Mirror On The Wall...</Text>
-		// 			<Photo />
-		// 			<View style={styles.buttonView}>
-		// 				<Button
-		// 					onPress={handleChangePress}
-		// 					title={hasPhoto ? 'Change Photo' : 'Add Photo'}
-		// 				/>
-		// 				{/* {hasPhoto && (
-		// 				<Button onPress={handleRemovePress} title="Remove Photo" />
-		// 			)} */}
-		// 			</View>
-		// 			<TextInput
-		// 				style={styles.input}
-		// 				onChangeText={onChangeText}
-		// 				value={text}
-		// 			/>
-		// 		</View>
-		// 	</TouchableWithoutFeedback>
-		// </KeyboardAvoidingView>
 		<KeyboardAvoid>
 			<SafeAreaView>
-				<Text style={styles.header}>Header</Text>
-				<Photo />
+				<Text style={styles.header}>Edit Profile</Text>
+				<Text style={styles.subtitle}>Mirror, Mirror On The Wall...</Text>
+				<Photo photo={profile.photo} />
 				<ButtonIOS
 					onPress={handleChangePress}
 					text={hasPhoto ? 'Change Photo' : 'Add Photo'}
@@ -152,7 +106,7 @@ function KeyboardAvoid({ children }) {
 		},
 		textInput: {
 			height: 40,
-			backgroundColor: colors.purpleColorLighter,
+			backgroundColor: colors.light.fgColorLighter,
 			borderRadius: sizes.radius,
 			textAlign: 'center',
 			// borderColor: '#000000',
@@ -172,7 +126,8 @@ function KeyboardAvoid({ children }) {
 					<View style={stl.inner}>
 						{children}
 						<TextInput
-							placeholder="Username"
+							placeholder="Enter Your Name"
+							placeholderTextColor={colors.light.fgColor}
 							style={stl.textInput}
 							onChangeText={(value) => handleChange(value)}
 						/>
@@ -181,4 +136,25 @@ function KeyboardAvoid({ children }) {
 			</ScrollView>
 		</KeyboardAvoidingView>
 	);
+}
+
+function Photo({ photo }) {
+	const hasPhoto = typeof photo.uri !== 'undefined';
+	if (hasPhoto) {
+		return (
+			<View style={styles.photoFullView}>
+				<Image
+					style={styles.photoFullImage}
+					resizeMode="cover"
+					source={{
+						uri: photo.uri,
+						width: width,
+						height: height / 2,
+					}}
+				/>
+			</View>
+		);
+	} else {
+		return <View style={styles.photoEmptyView} />;
+	}
 }

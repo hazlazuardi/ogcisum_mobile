@@ -9,10 +9,9 @@ export default function ButtonIOS({ text, onPress }) {
 			justifyContent: 'space-around',
 		},
 		buttonBackground: {
-			backgroundColor: colors.purpleColorLighter,
+			backgroundColor: colors.light.fgColor,
 			paddingHorizontal: sizes.padding,
 			paddingVertical: sizes.padding / 2,
-			width: '100%',
 			display: 'flex',
 			justifyContent: 'center',
 			alignItems: 'center',
@@ -20,6 +19,7 @@ export default function ButtonIOS({ text, onPress }) {
 		},
 		buttonText: {
 			color: colors.white,
+			fontWeight: '800',
 		},
 	});
 	return (
