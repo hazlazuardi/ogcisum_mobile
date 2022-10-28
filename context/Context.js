@@ -93,10 +93,16 @@ function locationsReducer(state, action) {
 
 function profileReducer(state, action) {
 	switch (action.type) {
-		case 'updated': {
+		case 'setPhoto': {
 			return {
 				...state,
 				photo: action.photo,
+			};
+		}
+		case 'setName': {
+			return {
+				...state,
+				name: action.name,
 			};
 		}
 		default: {
@@ -111,4 +117,7 @@ const initialLocations = {
 	user: {},
 };
 
-const initialProfile = {};
+const initialProfile = {
+	photo: {},
+	name: '',
+};

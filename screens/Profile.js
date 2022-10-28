@@ -18,6 +18,7 @@ import {
 import { launchImageLibrary } from 'react-native-image-picker';
 import KeyboardAvoidingView from 'react-native/Libraries/Components/Keyboard/KeyboardAvoidingView';
 import ButtonIOS from '../components/ButtonIOS';
+import { useProfile } from '../context/Context';
 import { colors, sizes } from '../data/theme';
 
 const { width, height } = Dimensions.get('window');
@@ -56,13 +57,19 @@ const styles = StyleSheet.create({
 
 export default function Profile() {
 	const [photoState, setPhotoState] = useState({});
+	const { profile, dispatchProfile: dispatch } = useProfile();
 
 	console.log('photoState: ', photoState);
+	console.log('ctx: ', profile);
 	async function handleChangePress() {
 		await launchImageLibrary()
 			.then((result) => {
 				if (typeof result.assets[0] === 'object') {
 					setPhotoState(result.assets[0]);
+					dispatch({
+						type: 'setPhoto',
+						photo: result.assets[0],
+					});
 				}
 			})
 			.catch((e) => console.log(e));
@@ -154,13 +161,21 @@ function KeyboardAvoid({ children }) {
 			color: colors.white,
 		},
 	});
+	const { dispatchProfile } = useProfile();
+	function handleChange(value) {
+		dispatchProfile({ type: 'setName', name: value });
+	}
 	return (
 		<KeyboardAvoidingView behavior={'position'}>
 			<ScrollView>
 				<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
 					<View style={stl.inner}>
 						{children}
-						<TextInput placeholder="Username" style={stl.textInput} />
+						<TextInput
+							placeholder="Username"
+							style={stl.textInput}
+							onChangeText={(value) => handleChange(value)}
+						/>
 					</View>
 				</TouchableWithoutFeedback>
 			</ScrollView>

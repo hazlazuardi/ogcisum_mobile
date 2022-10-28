@@ -15,12 +15,14 @@ import {
 import { WebView } from 'react-native-webview';
 import {
 	useLocation,
+	useProfile,
 	useSamples,
 	useSamplesToLocations,
 } from '../context/Context';
 import { dummySample } from '../data/dummy';
 import { colors, sizes } from '../data/theme';
 import ButtonIOS from '../components/ButtonIOS';
+import icons from '../data/icons';
 
 const { width, height } = Dimensions.get('window');
 
@@ -175,7 +177,7 @@ export default function NowPlaying() {
 	return (
 		<SafeAreaView style={styles.safeContainer}>
 			<ScrollView contentContainerStyle={styles.container}>
-				<View style={styles.webViewContainer}>
+				<View style={false && styles.webViewContainer}>
 					<WebView
 						ref={(ref) => (webViewRef.current = ref)}
 						originWhitelist={['*']}
@@ -189,6 +191,11 @@ export default function NowPlaying() {
 					/>
 				</View>
 				<View>
+					<Image
+						source={icons.iconPinPurple}
+						style={{ height: 100, width: 100 }}
+						resizeMode="contain"
+					/>
 					<Text>{nearbyLocation.location}</Text>
 					<Text>{`${nearbyLocation.suburb}, ${nearbyLocation.state}`}</Text>
 				</View>
@@ -199,7 +206,26 @@ export default function NowPlaying() {
 						webViewState={webViewState}
 					/>
 				)}
+				<Text>Currently At This Location: </Text>
+				<PhotoProfile />
+				<PhotoProfile />
 			</ScrollView>
 		</SafeAreaView>
+	);
+}
+
+function PhotoProfile() {
+	const { profile } = useProfile();
+	return (
+		<View>
+			<Image
+				source={{
+					uri: profile.photo.uri,
+					width: 100,
+					height: 100,
+				}}
+			/>
+			<Text>{profile.name}</Text>
+		</View>
 	);
 }
