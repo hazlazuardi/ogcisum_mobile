@@ -40,7 +40,7 @@ const colorScheme = Appearance.getColorScheme();
 
 // Main component for displaying the map and markers
 export default function Map() {
-	const dispatch = useLocationDispatch();
+	const dispatchLocations = useLocationDispatch();
 
 	// Convert string-based latlong to object-based on each location
 	const updatedLocations = locations.map((location) => {
@@ -119,7 +119,7 @@ export default function Map() {
 						userLocation,
 						nearbyLocation: nearbyLocation,
 					});
-					dispatch({
+					dispatchLocations({
 						type: 'updated',
 						nearbyLocation: nearbyLocation,
 						user: userLocation,
@@ -131,7 +131,7 @@ export default function Map() {
 		return () => {
 			Geolocation.clearWatch();
 		};
-	}, [dispatch, memoizedMapState]);
+	}, [dispatchLocations, memoizedMapState]);
 
 	return (
 		<>
