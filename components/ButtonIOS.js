@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { colors, sizes } from '../data/theme';
 
-export default function ButtonIOS({ text, onPress }) {
+export default function ButtonIOS({ text, onPress, fullWidth }) {
 	const styles = StyleSheet.create({
 		buttonContainer: {
 			flexDirection: 'row',
@@ -25,7 +25,10 @@ export default function ButtonIOS({ text, onPress }) {
 	return (
 		<View style={styles.buttonContainer}>
 			{/* <Button onPress={handleReloadPress} title="Reload WebView" /> */}
-			<TouchableOpacity style={styles.buttonBackground} onPress={onPress}>
+			<TouchableOpacity
+				style={[styles.buttonBackground, fullWidth && { flex: 1 }]}
+				onPress={onPress}
+			>
 				<Text style={styles.buttonText}>{text}</Text>
 			</TouchableOpacity>
 		</View>

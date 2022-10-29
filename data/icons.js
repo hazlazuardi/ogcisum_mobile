@@ -6,6 +6,7 @@ import tabProfilePurple from '../assets/icons/tab-profile-darkpurple.png';
 import logoWhite from '../assets/icons/logo-white.png';
 import iconPinWhite from '../assets/icons/icon-pin-white.png';
 import iconPinPurple from '../assets/icons/icon-pin-darkpurple.png';
+import iconSmileyPurple from '../assets/icons/icon-smiley-darkpurple.png';
 
 export default {
 	appIcon,
@@ -16,4 +17,5 @@ export default {
 	logoWhite,
 	iconPinWhite,
 	iconPinPurple,
+	iconSmileyPurple,
 };

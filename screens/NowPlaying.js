@@ -26,46 +26,6 @@ import icons from '../data/icons';
 
 const { width, height } = Dimensions.get('window');
 
-const styles = StyleSheet.create({
-	safeContainer: {},
-	container: {
-		paddingHorizontal: 20,
-		paddingBottom: 20,
-	},
-	webViewContainer: {
-		height: height / 2,
-		borderWidth: 3,
-		marginBottom: 20,
-	},
-	webView: {},
-	buttonContainer: {
-		flexDirection: 'row',
-		justifyContent: 'space-around',
-	},
-	playButton: {
-		backgroundColor: colors.purpleColorLighter,
-		paddingHorizontal: sizes.padding,
-		paddingVertical: sizes.padding / 2,
-		width: '100%',
-		display: 'flex',
-		justifyContent: 'center',
-		alignItems: 'center',
-		borderRadius: sizes.radius,
-	},
-	playButtonText: {
-		color: colors.white,
-	},
-});
-
-function PlayButton({ webViewState, handleActionPress }) {
-	return (
-		<ButtonIOS
-			text={!webViewState.actioned ? 'Play Music' : 'Stop Music'}
-			onPress={handleActionPress}
-		/>
-	);
-}
-
 export default function NowPlaying() {
 	const { samples, statusSamples } = useSamples();
 	const { samplesToLocations, statusSTL } = useSamplesToLocations();
@@ -92,19 +52,7 @@ export default function NowPlaying() {
 				};
 				return parsedRec;
 			});
-		// const filteredSamples = allSam
-		// 	.filter(sam => sam.id === )
 		return filteredSam;
-		// const filteredSTL = allStl
-		// 	.filter((stl) => {
-		// 		stl.location_id === nearLoc.id;
-		// 	})
-		// 	.map((stl) => stl);
-		// const filteredSampleIDs = filteredSTL.map((stl) => stl.samples_id);
-		// const filteredSample = allSam
-		// 	?.filter((sample) => filteredSampleIDs.include(sample.id))
-		// 	.map((sample) => sample);
-		// return filteredSample;
 	}
 
 	const memoizedNearby = useMemo(
@@ -173,59 +121,190 @@ export default function NowPlaying() {
 		});
 	}
 
-	console.log(nearbyLocation);
+	// console.log(nearbyLocation);
 	return (
 		<SafeAreaView style={styles.safeContainer}>
 			<ScrollView contentContainerStyle={styles.container}>
-				<View style={false && styles.webViewContainer}>
-					<WebView
-						ref={(ref) => (webViewRef.current = ref)}
-						originWhitelist={['*']}
-						source={{
-							// uri: 'https://wmp.interaction.courses/test-webview/',
-							uri: 'https://wmp.interaction.courses/playback-webview/',
-						}}
-						pullToRefreshEnabled={true}
-						onLoad={webViewLoaded}
-						style={styles.webView}
-					/>
+				<View style={styles.section}>
+					<View style={styles.headerContainer}>
+						<View style={styles.headerIconContainer}>
+							<Image
+								source={icons.iconPinPurple}
+								style={styles.headerIcon}
+								resizeMode="contain"
+							/>
+						</View>
+						<View style={styles.headerText}>
+							<Text style={styles.headingLocation}>
+								{nearbyLocation.location}
+							</Text>
+							<Text style={styles.subHeadingLocation}>
+								{nearbyLocation.suburb}, {nearbyLocation.state}
+							</Text>
+						</View>
+					</View>
+					{webViewState && (
+						<PlayButton
+							handleActionPress={handleActionPress}
+							webViewState={webViewState}
+						/>
+					)}
 				</View>
-				<View>
-					<Image
-						source={icons.iconPinPurple}
-						style={{ height: 100, width: 100 }}
-						resizeMode="contain"
-					/>
-					<Text>{nearbyLocation.location}</Text>
-					<Text>{`${nearbyLocation.suburb}, ${nearbyLocation.state}`}</Text>
+				<View style={styles.section}>
+					<Text style={styles.headingProfile}>
+						Currently At This Location:{' '}
+					</Text>
+					<PhotoProfile isUser={true} />
+					<PhotoProfile />
 				</View>
-
-				{webViewState && (
-					<PlayButton
-						handleActionPress={handleActionPress}
-						webViewState={webViewState}
-					/>
-				)}
-				<Text>Currently At This Location: </Text>
-				<PhotoProfile />
-				<PhotoProfile />
 			</ScrollView>
+			<View style={false && styles.webViewContainer}>
+				<WebView
+					ref={(ref) => (webViewRef.current = ref)}
+					originWhitelist={['*']}
+					source={{
+						// uri: 'https://wmp.interaction.courses/test-webview/',
+						uri: 'https://wmp.interaction.courses/playback-webview/',
+					}}
+					pullToRefreshEnabled={true}
+					onLoad={webViewLoaded}
+					style={styles.webView}
+				/>
+			</View>
 		</SafeAreaView>
 	);
 }
 
-function PhotoProfile() {
+function PhotoProfile({ isUser }) {
 	const { profile } = useProfile();
+	const userHasPhoto = 'uri' in profile.photo;
+	let imageSource;
+	if (isUser && userHasPhoto) {
+		imageSource = { uri: profile.photo.uri, width: 100, height: 100 };
+	} else {
+		imageSource = icons.iconSmileyPurple;
+	}
 	return (
-		<View>
-			<Image
-				source={{
-					uri: profile.photo.uri,
-					width: 100,
-					height: 100,
-				}}
-			/>
-			<Text>{profile.name}</Text>
+		<View style={styles.profileCard}>
+			<View style={styles.profilePictureContainer}>
+				<Image
+					source={imageSource}
+					resizeMode="cover"
+					style={styles.profilePicture}
+				/>
+			</View>
+			<Text style={styles.profileName}>
+				{isUser ? profile.name || 'Enter Your Name' : 'And Others...'}
+			</Text>
 		</View>
 	);
 }
+
+function PlayButton({ webViewState, handleActionPress }) {
+	return (
+		<ButtonIOS
+			text={!webViewState.actioned ? 'Play Music' : 'Stop Music'}
+			onPress={handleActionPress}
+			fullWidth
+		/>
+	);
+}
+
+const styles = StyleSheet.create({
+	safeContainer: {},
+	container: {
+		paddingHorizontal: 20,
+		paddingBottom: 20,
+		justifyContent: 'space-between',
+		height: '100%',
+	},
+	webViewContainer: {
+		height: height / 2,
+		borderWidth: 3,
+		marginBottom: 20,
+	},
+	webView: {},
+	buttonContainer: {
+		flexDirection: 'row',
+		justifyContent: 'space-around',
+	},
+	playButton: {
+		backgroundColor: colors.purpleColorLighter,
+		paddingHorizontal: sizes.padding,
+		paddingVertical: sizes.padding / 2,
+		width: '100%',
+		display: 'flex',
+		justifyContent: 'center',
+		alignItems: 'center',
+		borderRadius: sizes.radius,
+	},
+	playButtonText: {
+		color: colors.white,
+	},
+	section: {
+		paddingVertical: sizes.padding,
+	},
+	headerContainer: {
+		display: 'flex',
+		flexDirection: 'row',
+		flex: 1,
+		marginBottom: sizes.padding,
+		// backgroundColor: 'red',
+	},
+	headerIconContainer: {
+		flex: 1,
+		justifyContent: 'center',
+		alignItems: 'center',
+		// backgroundColor: 'green',
+	},
+	headerIcon: {
+		width: '75%',
+		height: '75%',
+	},
+	headerText: {
+		display: 'flex',
+		// backgroundColor: 'blue',
+		flex: 3,
+		justifyContent: 'space-between',
+	},
+	headingLocation: {
+		fontSize: sizes.body1,
+		fontWeight: 'bold',
+		marginBottom: 8,
+		color: colors.light.fgColor,
+	},
+	subHeadingLocation: {
+		fontSize: sizes.body3,
+		color: colors.light.fgColor,
+	},
+	headingProfile: {
+		fontSize: sizes.heading,
+		fontWeight: 'bold',
+		color: colors.light.fgColor,
+	},
+	profileCard: {
+		display: 'flex',
+		flexDirection: 'row',
+		alignItems: 'center',
+		paddingTop: sizes.padding,
+	},
+	profilePictureContainer: {
+		aspectRatio: 1,
+		width: '20%',
+		alignItems: 'center',
+		justifyContent: 'center',
+		marginRight: sizes.padding,
+		borderWidth: 3,
+		borderColor: colors.light.fgColorLighter,
+		borderRadius: 1000,
+	},
+	profilePicture: {
+		borderRadius: 1000,
+		width: '100%',
+		height: '100%',
+	},
+	profileName: {
+		color: colors.light.fgColor,
+		fontWeight: '600',
+	},
+});
