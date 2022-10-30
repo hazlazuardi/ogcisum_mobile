@@ -17,7 +17,7 @@ import {
 import { launchImageLibrary } from 'react-native-image-picker';
 import KeyboardAvoidingView from 'react-native/Libraries/Components/Keyboard/KeyboardAvoidingView';
 import ButtonIOS from '../components/ButtonIOS';
-import { useProfile } from '../context/Context';
+import { useProfile, useTheme } from '../context/Context';
 import { colors, sizes } from '../data/theme';
 
 const { width, height } = Dimensions.get('window');
@@ -62,7 +62,6 @@ const styles = StyleSheet.create({
 	header: {
 		fontSize: sizes.body1,
 		fontWeight: 'bold',
-		color: colors.light.fgColor,
 	},
 	subtitle: {
 		fontSize: sizes.body3,
@@ -89,22 +88,26 @@ export default function Profile() {
 	}
 
 	const hasPhoto = typeof profile.photo.uri !== 'undefined';
-
+	const { themeColors } = useTheme();
 	return (
 		<KeyboardAvoid>
-			<SafeAreaView>
-				<View>
-					<Text style={styles.header}>Edit Profile</Text>
-					<Text style={styles.subtitle}>Mirror, Mirror On The Wall...</Text>
-				</View>
-				{/* <Photo photo={profile.photo} /> */}
-				<Photo photo={profile.photo} onPress={handleChangePress}>
-					<ButtonIOS
-						onPress={handleChangePress}
-						text={hasPhoto ? 'Change Photo' : 'Add Photo'}
-					/>
-				</Photo>
-			</SafeAreaView>
+			{/* <SafeAreaView style={{ backgroundColor: themeColors.bgColor }}> */}
+			<View>
+				<Text style={[styles.header, { color: themeColors.headerTextColor }]}>
+					Edit Profile
+				</Text>
+				<Text style={[styles.subtitle, { color: themeColors.headerTextColor }]}>
+					Mirror, Mirror On The Wall...
+				</Text>
+			</View>
+			{/* <Photo photo={profile.photo} /> */}
+			<Photo photo={profile.photo} onPress={handleChangePress}>
+				<ButtonIOS
+					onPress={handleChangePress}
+					text={hasPhoto ? 'Change Photo' : 'Add Photo'}
+				/>
+			</Photo>
+			{/* </SafeAreaView> */}
 		</KeyboardAvoid>
 	);
 }
@@ -125,7 +128,6 @@ function KeyboardAvoid({ children }) {
 		},
 		textInput: {
 			height: 40,
-			backgroundColor: colors.light.fgColorLighter,
 			borderRadius: sizes.radius,
 			textAlign: 'center',
 			// borderColor: '#000000',
@@ -138,21 +140,32 @@ function KeyboardAvoid({ children }) {
 	function handleChange(value) {
 		dispatchProfile({ type: 'setName', name: value });
 	}
+	const { themeColors } = useTheme();
 	return (
 		<KeyboardAvoidingView behavior={'position'}>
-			<ScrollView>
-				<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-					<View style={stl.inner}>
-						{children}
-						<TextInput
-							placeholder="Enter Your Name"
-							placeholderTextColor={colors.light.fgColor}
-							style={stl.textInput}
-							onChangeText={(value) => handleChange(value)}
-						/>
-					</View>
-				</TouchableWithoutFeedback>
-			</ScrollView>
+			<SafeAreaView
+				style={{ height: '100%', backgroundColor: themeColors.bgColor }}
+			>
+				<ScrollView>
+					<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+						<View style={stl.inner}>
+							{children}
+							<TextInput
+								placeholder="Enter Your Name"
+								placeholderTextColor={{ color: themeColors.fgColor }}
+								style={[
+									stl.textInput,
+									{
+										backgroundColor: themeColors.fgColorLighter,
+										color: themeColors.fgColor,
+									},
+								]}
+								onChangeText={(value) => handleChange(value)}
+							/>
+						</View>
+					</TouchableWithoutFeedback>
+				</ScrollView>
+			</SafeAreaView>
 		</KeyboardAvoidingView>
 	);
 }
