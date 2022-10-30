@@ -10,6 +10,8 @@ import {
 	Button,
 	StyleSheet,
 	TouchableOpacity,
+	useColorScheme,
+	Appearance,
 } from 'react-native';
 
 import { WebView } from 'react-native-webview';
@@ -18,6 +20,7 @@ import {
 	useProfile,
 	useSamples,
 	useSamplesToLocations,
+	useTheme,
 } from '../context/Context';
 import { dummySample } from '../data/dummy';
 import { colors, sizes } from '../data/theme';
@@ -25,7 +28,6 @@ import ButtonIOS from '../components/ButtonIOS';
 import icons from '../data/icons';
 
 const { width, height } = Dimensions.get('window');
-
 export default function NowPlaying() {
 	const { samples, statusSamples } = useSamples();
 	const { samplesToLocations, statusSTL } = useSamplesToLocations();
@@ -124,24 +126,37 @@ export default function NowPlaying() {
 	}
 
 	// console.log(nearbyLocation);
+	const { themeColors, themeIcons } = useTheme();
 	return (
-		<SafeAreaView style={styles.safeContainer}>
+		<SafeAreaView
+			style={[styles.safeContainer, { backgroundColor: themeColors.bgColor }]}
+		>
 			<ScrollView contentContainerStyle={styles.container}>
 				<View style={styles.section}>
 					<View style={[styles.headerContainer]}>
 						<View style={[styles.flexRow, styles.groupView]}>
 							<View style={styles.headerIconContainer}>
 								<Image
-									source={icons.iconPinPurple}
+									source={themeIcons.iconPin}
 									style={styles.headerIcon}
 									resizeMode="contain"
 								/>
 							</View>
 							<View style={styles.headerText}>
-								<Text style={styles.headingLocation}>
+								<Text
+									style={[
+										styles.headingLocation,
+										{ color: themeColors.headerTextColor },
+									]}
+								>
 									{nearbyLocation.location}
 								</Text>
-								<Text style={styles.subHeadingLocation}>
+								<Text
+									style={[
+										styles.subHeadingLocation,
+										{ color: themeColors.headerTextColor },
+									]}
+								>
 									{nearbyLocation.suburb}, {nearbyLocation.state}
 								</Text>
 							</View>
@@ -155,7 +170,12 @@ export default function NowPlaying() {
 					</View>
 				</View>
 				<View style={styles.section}>
-					<Text style={styles.headingProfile}>
+					<Text
+						style={[
+							styles.headingProfile,
+							{ color: themeColors.headerTextColor },
+						]}
+					>
 						Currently At This Location:{' '}
 					</Text>
 					<PhotoProfile isUser={true} />
@@ -181,12 +201,13 @@ export default function NowPlaying() {
 
 function PhotoProfile({ isUser }) {
 	const { profile } = useProfile();
+	const { themeColors, themeIcons } = useTheme();
 	const userHasPhoto = 'uri' in profile.photo;
 	let imageSource;
 	if (isUser && userHasPhoto) {
 		imageSource = { uri: profile.photo.uri, width: 100, height: 100 };
 	} else {
-		imageSource = icons.iconSmileyPurple;
+		imageSource = themeIcons.iconSmiley;
 	}
 	return (
 		<View style={styles.profileCard}>
@@ -197,7 +218,9 @@ function PhotoProfile({ isUser }) {
 					style={styles.profilePicture}
 				/>
 			</View>
-			<Text style={styles.profileName}>
+			<Text
+				style={[styles.profileName, { color: themeColors.headerTextColor }]}
+			>
 				{isUser ? profile.name || 'Enter Your Name' : 'And Others...'}
 			</Text>
 		</View>
@@ -223,11 +246,13 @@ const styles = StyleSheet.create({
 		paddingBottom: sizes.padding,
 	},
 
-	safeContainer: {},
+	safeContainer: {
+		flex: 1,
+	},
 	container: {
 		paddingHorizontal: sizes.padding,
 		justifyContent: 'space-between',
-		height: height - sizes.bottomTabBarHeight - sizes.padding,
+		flex: 1,
 	},
 	webViewContainer: {
 		height: height / 2,
@@ -252,7 +277,7 @@ const styles = StyleSheet.create({
 		color: colors.white,
 	},
 	section: {
-		paddingVertical: sizes.padding / 2,
+		paddingVertical: sizes.padding,
 		// backgroundColor: 'green',
 	},
 	headerContainer: {
@@ -279,16 +304,13 @@ const styles = StyleSheet.create({
 		fontSize: sizes.body1,
 		fontWeight: 'bold',
 		marginBottom: 8,
-		color: colors.light.fgColor,
 	},
 	subHeadingLocation: {
 		fontSize: sizes.body3,
-		color: colors.light.fgColor,
 	},
 	headingProfile: {
 		fontSize: sizes.heading,
 		fontWeight: 'bold',
-		color: colors.light.fgColor,
 	},
 	profileCard: {
 		display: 'flex',

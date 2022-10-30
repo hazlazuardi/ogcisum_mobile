@@ -12,7 +12,7 @@ export const colors = {
 		bgColor: '#ffffff',
 		fgColor: '#800080',
 		fgColorLighter: 'rgba(185,135,188,1)',
-		headerTextColor: '#ffffff',
+		headerTextColor: '#800080',
 	},
 	dark: {
 		bgColor: '#422142',
@@ -29,7 +29,7 @@ export const sizes = {
 	radius: 12,
 	padding: 24,
 	headerHeight: 200,
-	bottomTabBarHeight: 130,
+	bottomTabBarHeight: 100,
 
 	// Font sizes
 	heading: 22,

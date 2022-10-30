@@ -19,7 +19,6 @@ export default function BottomTabBar({ navigation }) {
 		<Tab.Navigator
 			screenOptions={{
 				headerShown: false,
-				tabBarStyle: { height: 100 },
 				tabBarBackground: () => {
 					return (
 						<View>
@@ -27,7 +26,7 @@ export default function BottomTabBar({ navigation }) {
 								start={{ x: 0, y: 0 }}
 								end={{ x: 0, y: 1 }}
 								colors={[colors.purpleColorLighter, colors.blueColorDarker]}
-								style={{ height: '100%' }}
+								style={{ height: sizes.bottomTabBarHeight }}
 							/>
 						</View>
 					);
@@ -59,7 +58,7 @@ function tabOptions(icon, isLogo) {
 			<TabIcon focused={focused} icon={icon} isLogo={isLogo} size={size} />
 		),
 		tabBarShowLabel: false,
-		tabBarStyle: [styles.tabContainer, { height: 100 }],
+		tabBarStyle: [styles.tabContainer, { height: sizes.bottomTabBarHeight }],
 	};
 }
 

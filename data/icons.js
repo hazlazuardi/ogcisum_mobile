@@ -4,9 +4,10 @@ import tabMapWhite from '../assets/icons/tab-map-white.png';
 import tabMapPurple from '../assets/icons/tab-map-darkpurple.png';
 import tabProfilePurple from '../assets/icons/tab-profile-darkpurple.png';
 import logoWhite from '../assets/icons/logo-white.png';
-import iconPinWhite from '../assets/icons/icon-pin-white.png';
-import iconPinPurple from '../assets/icons/icon-pin-darkpurple.png';
-import iconSmileyPurple from '../assets/icons/icon-smiley-darkpurple.png';
+import iconPinLight from '../assets/icons/icon-pin-darkpurple.png';
+import iconPinDark from '../assets/icons/icon-pin-lightpurple.png';
+import iconSmileyLight from '../assets/icons/icon-smiley-darkpurple.png';
+import iconSmileyDark from '../assets/icons/icon-smiley-lightpurple.png';
 
 export default {
 	appIcon,
@@ -15,7 +16,12 @@ export default {
 	tabMapPurple,
 	tabProfilePurple,
 	logoWhite,
-	iconPinWhite,
-	iconPinPurple,
-	iconSmileyPurple,
+	light: {
+		iconPin: iconPinLight,
+		iconSmiley: iconSmileyLight,
+	},
+	dark: {
+		iconPin: iconPinDark,
+		iconSmiley: iconSmileyDark,
+	},
 };

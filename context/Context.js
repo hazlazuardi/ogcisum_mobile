@@ -1,7 +1,10 @@
 import React from 'react';
 import { createContext, useContext, useReducer } from 'react';
+import { useColorScheme } from 'react-native';
 
 import { SAMPLES_TO_LOCATIONS_URL, SAMPLES_URL } from '../data/constants';
+import icons from '../data/icons';
+import { colors } from '../data/theme';
 
 import useFetch from '../hooks/useFetch';
 
@@ -10,6 +13,7 @@ const LocationDispatchContext = createContext(null);
 const SamplesContext = createContext(null);
 const SamplesToLocationsContext = createContext(null);
 const ProfileContext = createContext(null);
+const ThemeContext = createContext(null);
 
 const samplesFetcher = async () =>
 	await fetch(SAMPLES_URL).then((res) => res.json());
@@ -22,6 +26,10 @@ export default function StoreProvider({ children }) {
 		initialLocations,
 	);
 	const [profile, dispatchProfile] = useReducer(profileReducer, initialProfile);
+	const colorScheme = useColorScheme();
+	const isDarkMode = colorScheme === 'dark';
+	const themeColors = isDarkMode ? colors.dark : colors.light;
+	const themeIcons = isDarkMode ? icons.dark : icons.light;
 
 	// Fetch Samples
 	const { status: statusSamples, value: samples } = useFetch(
@@ -36,24 +44,26 @@ export default function StoreProvider({ children }) {
 	);
 
 	return (
-		<ProfileContext.Provider value={{ profile, dispatchProfile }}>
-			<LocationContext.Provider value={locations}>
-				<LocationDispatchContext.Provider value={dispatchLocations}>
-					<SamplesContext.Provider
-						value={{ samples: samples?.samples, statusSamples }}
-					>
-						<SamplesToLocationsContext.Provider
-							value={{
-								samplesToLocations: samplesToLocations?.samples_to_locations,
-								statusSTL,
-							}}
+		<ThemeContext.Provider value={{ themeColors, themeIcons }}>
+			<ProfileContext.Provider value={{ profile, dispatchProfile }}>
+				<LocationContext.Provider value={locations}>
+					<LocationDispatchContext.Provider value={dispatchLocations}>
+						<SamplesContext.Provider
+							value={{ samples: samples?.samples, statusSamples }}
 						>
-							{children}
-						</SamplesToLocationsContext.Provider>
-					</SamplesContext.Provider>
-				</LocationDispatchContext.Provider>
-			</LocationContext.Provider>
-		</ProfileContext.Provider>
+							<SamplesToLocationsContext.Provider
+								value={{
+									samplesToLocations: samplesToLocations?.samples_to_locations,
+									statusSTL,
+								}}
+							>
+								{children}
+							</SamplesToLocationsContext.Provider>
+						</SamplesContext.Provider>
+					</LocationDispatchContext.Provider>
+				</LocationContext.Provider>
+			</ProfileContext.Provider>
+		</ThemeContext.Provider>
 	);
 }
 
@@ -74,6 +84,10 @@ export function useSamplesToLocations() {
 
 export function useProfile() {
 	return useContext(ProfileContext);
+}
+
+export function useTheme() {
+	return useContext(ThemeContext);
 }
 
 function locationsReducer(state, action) {
