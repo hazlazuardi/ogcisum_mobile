@@ -32,6 +32,8 @@ export default function NowPlaying() {
 	const { nearbyLocation } = useLocation();
 	const [recData, setRecData] = useState();
 
+	console.log(nearbyLocation);
+
 	function getSamplesFromLocations(nearLoc, allSam, allStl) {
 		// console.log('nearf: ', typeof nearLoc.id);
 		// console.log('allSam: ', allSam);
@@ -126,29 +128,31 @@ export default function NowPlaying() {
 		<SafeAreaView style={styles.safeContainer}>
 			<ScrollView contentContainerStyle={styles.container}>
 				<View style={styles.section}>
-					<View style={styles.headerContainer}>
-						<View style={styles.headerIconContainer}>
-							<Image
-								source={icons.iconPinPurple}
-								style={styles.headerIcon}
-								resizeMode="contain"
+					<View style={[styles.headerContainer]}>
+						<View style={[styles.flexRow, styles.groupView]}>
+							<View style={styles.headerIconContainer}>
+								<Image
+									source={icons.iconPinPurple}
+									style={styles.headerIcon}
+									resizeMode="contain"
+								/>
+							</View>
+							<View style={styles.headerText}>
+								<Text style={styles.headingLocation}>
+									{nearbyLocation.location}
+								</Text>
+								<Text style={styles.subHeadingLocation}>
+									{nearbyLocation.suburb}, {nearbyLocation.state}
+								</Text>
+							</View>
+						</View>
+						{webViewState && (
+							<PlayButton
+								handleActionPress={handleActionPress}
+								webViewState={webViewState}
 							/>
-						</View>
-						<View style={styles.headerText}>
-							<Text style={styles.headingLocation}>
-								{nearbyLocation.location}
-							</Text>
-							<Text style={styles.subHeadingLocation}>
-								{nearbyLocation.suburb}, {nearbyLocation.state}
-							</Text>
-						</View>
+						)}
 					</View>
-					{webViewState && (
-						<PlayButton
-							handleActionPress={handleActionPress}
-							webViewState={webViewState}
-						/>
-					)}
 				</View>
 				<View style={styles.section}>
 					<Text style={styles.headingProfile}>
@@ -211,19 +215,25 @@ function PlayButton({ webViewState, handleActionPress }) {
 }
 
 const styles = StyleSheet.create({
+	flexRow: {
+		display: 'flex',
+		flexDirection: 'row',
+	},
+	groupView: {
+		paddingBottom: sizes.padding,
+	},
+
 	safeContainer: {},
 	container: {
-		paddingHorizontal: 20,
-		paddingBottom: 20,
+		paddingHorizontal: sizes.padding,
 		justifyContent: 'space-between',
-		height: '100%',
+		height: height - sizes.bottomTabBarHeight - sizes.padding,
 	},
 	webViewContainer: {
 		height: height / 2,
 		borderWidth: 3,
 		marginBottom: 20,
 	},
-	webView: {},
 	buttonContainer: {
 		flexDirection: 'row',
 		justifyContent: 'space-around',
@@ -242,13 +252,11 @@ const styles = StyleSheet.create({
 		color: colors.white,
 	},
 	section: {
-		paddingVertical: sizes.padding,
+		paddingVertical: sizes.padding / 2,
+		// backgroundColor: 'green',
 	},
 	headerContainer: {
-		display: 'flex',
-		flexDirection: 'row',
-		flex: 1,
-		marginBottom: sizes.padding,
+		height: sizes.headerHeight,
 		// backgroundColor: 'red',
 	},
 	headerIconContainer: {
@@ -258,14 +266,14 @@ const styles = StyleSheet.create({
 		// backgroundColor: 'green',
 	},
 	headerIcon: {
-		width: '75%',
-		height: '75%',
+		width: '100%',
+		height: '55%',
 	},
 	headerText: {
 		display: 'flex',
 		// backgroundColor: 'blue',
 		flex: 3,
-		justifyContent: 'space-between',
+		justifyContent: 'center',
 	},
 	headingLocation: {
 		fontSize: sizes.body1,

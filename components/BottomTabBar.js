@@ -65,8 +65,6 @@ function tabOptions(icon, isLogo) {
 
 function TabIcon({ focused, icon, isLogo, size }) {
 	const location = useLocation();
-	console.log(size);
-	console.log(isLogo);
 	// console.log(location);
 	if (!isLogo) {
 		return (

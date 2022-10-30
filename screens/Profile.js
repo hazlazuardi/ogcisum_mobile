@@ -11,6 +11,7 @@ import {
 	TextInput,
 	TouchableWithoutFeedback,
 	Keyboard,
+	ImageBackground,
 } from 'react-native';
 
 import { launchImageLibrary } from 'react-native-image-picker';
@@ -27,19 +28,29 @@ const styles = StyleSheet.create({
 		justifyContent: 'space-around',
 	},
 	photoFullView: {
-		marginBottom: 20,
+		overflow: 'hidden',
+		borderWidth: 4,
+		borderRadius: 10,
+		borderColor: colors.light.fgColorLighter,
+		height: height / 2,
+		flex: 1,
+		display: 'flex',
+		justifyContent: 'flex-end',
+		alignItems: 'center',
+		paddingBottom: sizes.padding,
+		marginBottom: sizes.padding,
 	},
+	photoFullImage: {},
 	photoEmptyView: {
 		borderWidth: 3,
 		borderRadius: 10,
 		borderColor: '#999',
 		borderStyle: 'dashed',
 		height: height / 2,
-		marginBottom: 20,
-	},
-	photoFullImage: {
-		width: '100%',
-		borderRadius: 10,
+		display: 'flex',
+		justifyContent: 'center',
+		alignItems: 'center',
+		marginBottom: sizes.padding,
 	},
 	buttonView: {
 		flexDirection: 'row',
@@ -50,9 +61,13 @@ const styles = StyleSheet.create({
 	},
 	header: {
 		fontSize: sizes.body1,
+		fontWeight: 'bold',
+		color: colors.light.fgColor,
 	},
 	subtitle: {
 		fontSize: sizes.body3,
+		color: colors.light.fgColor,
+		marginBottom: sizes.padding,
 	},
 });
 
@@ -78,13 +93,17 @@ export default function Profile() {
 	return (
 		<KeyboardAvoid>
 			<SafeAreaView>
-				<Text style={styles.header}>Edit Profile</Text>
-				<Text style={styles.subtitle}>Mirror, Mirror On The Wall...</Text>
-				<Photo photo={profile.photo} />
-				<ButtonIOS
-					onPress={handleChangePress}
-					text={hasPhoto ? 'Change Photo' : 'Add Photo'}
-				/>
+				<View>
+					<Text style={styles.header}>Edit Profile</Text>
+					<Text style={styles.subtitle}>Mirror, Mirror On The Wall...</Text>
+				</View>
+				{/* <Photo photo={profile.photo} /> */}
+				<Photo photo={profile.photo} onPress={handleChangePress}>
+					<ButtonIOS
+						onPress={handleChangePress}
+						text={hasPhoto ? 'Change Photo' : 'Add Photo'}
+					/>
+				</Photo>
 			</SafeAreaView>
 		</KeyboardAvoid>
 	);
@@ -138,23 +157,30 @@ function KeyboardAvoid({ children }) {
 	);
 }
 
-function Photo({ photo }) {
+function Photo({ photo, children, onPress }) {
 	const hasPhoto = typeof photo.uri !== 'undefined';
 	if (hasPhoto) {
 		return (
-			<View style={styles.photoFullView}>
-				<Image
-					style={styles.photoFullImage}
+			<TouchableWithoutFeedback onPress={onPress}>
+				<ImageBackground
+					style={styles.photoFullView}
 					resizeMode="cover"
 					source={{
 						uri: photo.uri,
 						width: width,
 						height: height / 2,
 					}}
-				/>
-			</View>
+				>
+					{children}
+				</ImageBackground>
+			</TouchableWithoutFeedback>
 		);
 	} else {
-		return <View style={styles.photoEmptyView} />;
+		// return <View style={styles.photoEmptyView} />;
+		return (
+			<TouchableWithoutFeedback onPress={onPress}>
+				<View style={styles.photoEmptyView}>{children}</View>
+			</TouchableWithoutFeedback>
+		);
 	}
 }

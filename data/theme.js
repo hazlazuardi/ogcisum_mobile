@@ -11,7 +11,7 @@ export const colors = {
 	light: {
 		bgColor: '#ffffff',
 		fgColor: '#800080',
-		fgColorLighter: 'rgba(128,0,128,0.5)',
+		fgColorLighter: 'rgba(185,135,188,1)',
 		headerTextColor: '#ffffff',
 	},
 	dark: {
@@ -28,7 +28,8 @@ export const sizes = {
 	font: 14,
 	radius: 12,
 	padding: 24,
-	headerHeight: 300,
+	headerHeight: 200,
+	bottomTabBarHeight: 130,
 
 	// Font sizes
 	heading: 22,
