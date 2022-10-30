@@ -7,11 +7,7 @@ import {
 	Image,
 	Dimensions,
 	Text,
-	Button,
 	StyleSheet,
-	TouchableOpacity,
-	useColorScheme,
-	Appearance,
 } from 'react-native';
 
 import { WebView } from 'react-native-webview';
@@ -25,7 +21,9 @@ import {
 import { dummySample } from '../data/dummy';
 import { colors, sizes } from '../data/theme';
 import ButtonIOS from '../components/ButtonIOS';
-import icons from '../data/icons';
+import HeaderText from '../components/HeaderText';
+import BodyText from '../components/BodyText';
+import TitleText from '../components/TitleText';
 
 const { width, height } = Dimensions.get('window');
 export default function NowPlaying() {
@@ -34,7 +32,8 @@ export default function NowPlaying() {
 	const { nearbyLocation } = useLocation();
 	const [recData, setRecData] = useState();
 
-	console.log(nearbyLocation);
+	// console.log(nearbyLocation);
+	// console.log(recData.length === 0);
 
 	function getSamplesFromLocations(nearLoc, allSam, allStl) {
 		// console.log('nearf: ', typeof nearLoc.id);
@@ -126,61 +125,29 @@ export default function NowPlaying() {
 	}
 
 	// console.log(nearbyLocation);
-	const { themeColors, themeIcons } = useTheme();
+	const hasRecData = recData?.length !== 0;
+	const { themeColors } = useTheme();
+
 	return (
 		<SafeAreaView
 			style={[styles.safeContainer, { backgroundColor: themeColors.bgColor }]}
 		>
 			<ScrollView contentContainerStyle={styles.container}>
-				<View style={styles.section}>
-					<View style={[styles.headerContainer]}>
-						<View style={[styles.flexRow, styles.groupView]}>
-							<View style={styles.headerIconContainer}>
-								<Image
-									source={themeIcons.iconPin}
-									style={styles.headerIcon}
-									resizeMode="contain"
-								/>
-							</View>
-							<View style={styles.headerText}>
-								<Text
-									style={[
-										styles.headingLocation,
-										{ color: themeColors.headerTextColor },
-									]}
-								>
-									{nearbyLocation.location}
-								</Text>
-								<Text
-									style={[
-										styles.subHeadingLocation,
-										{ color: themeColors.headerTextColor },
-									]}
-								>
-									{nearbyLocation.suburb}, {nearbyLocation.state}
-								</Text>
-							</View>
-						</View>
-						{webViewState && (
-							<PlayButton
-								handleActionPress={handleActionPress}
-								webViewState={webViewState}
-							/>
-						)}
+				{hasRecData ? (
+					<>
+						<MusicPlayer
+							nearbyLocation={nearbyLocation}
+							webViewState={webViewState}
+							handlePlay={handleActionPress}
+						/>
+						<ProfilesList />
+					</>
+				) : (
+					<View style={styles.section}>
+						<HeaderText>No music nearby</HeaderText>
+						<BodyText>Oh it's so quiet here...</BodyText>
 					</View>
-				</View>
-				<View style={styles.section}>
-					<Text
-						style={[
-							styles.headingProfile,
-							{ color: themeColors.headerTextColor },
-						]}
-					>
-						Currently At This Location:{' '}
-					</Text>
-					<PhotoProfile isUser={true} />
-					<PhotoProfile />
-				</View>
+				)}
 			</ScrollView>
 			<View style={false && styles.webViewContainer}>
 				<WebView
@@ -201,7 +168,7 @@ export default function NowPlaying() {
 
 function PhotoProfile({ isUser }) {
 	const { profile } = useProfile();
-	const { themeColors, themeIcons } = useTheme();
+	const { themeIcons } = useTheme();
 	const userHasPhoto = 'uri' in profile.photo;
 	let imageSource;
 	if (isUser && userHasPhoto) {
@@ -218,22 +185,58 @@ function PhotoProfile({ isUser }) {
 					style={styles.profilePicture}
 				/>
 			</View>
-			<Text
-				style={[styles.profileName, { color: themeColors.headerTextColor }]}
-			>
+			<BodyText>
 				{isUser ? profile.name || 'Enter Your Name' : 'And Others...'}
-			</Text>
+			</BodyText>
 		</View>
 	);
 }
 
-function PlayButton({ webViewState, handleActionPress }) {
+function PlayButton({ webViewState, handlePlay }) {
 	return (
 		<ButtonIOS
 			text={!webViewState.actioned ? 'Play Music' : 'Stop Music'}
-			onPress={handleActionPress}
+			onPress={handlePlay}
 			fullWidth
 		/>
+	);
+}
+
+function MusicPlayer({ nearbyLocation, webViewState, handlePlay }) {
+	const { themeIcons } = useTheme();
+	return (
+		<View style={styles.section}>
+			<View style={[styles.headerContainer]}>
+				<View style={[styles.flexRow, styles.groupView]}>
+					<View style={styles.headerIconContainer}>
+						<Image
+							source={themeIcons.iconPin}
+							style={styles.headerIcon}
+							resizeMode="contain"
+						/>
+					</View>
+					<View style={styles.headerTextContainer}>
+						<HeaderText>{nearbyLocation.location}</HeaderText>
+						<BodyText>
+							{nearbyLocation.suburb}, {nearbyLocation.state}
+						</BodyText>
+					</View>
+				</View>
+				{webViewState && (
+					<PlayButton handlePlay={handlePlay} webViewState={webViewState} />
+				)}
+			</View>
+		</View>
+	);
+}
+
+function ProfilesList() {
+	return (
+		<View style={styles.section}>
+			<TitleText>Currently At This Location: </TitleText>
+			<PhotoProfile isUser={true} />
+			<PhotoProfile />
+		</View>
 	);
 }
 
@@ -294,9 +297,7 @@ const styles = StyleSheet.create({
 		width: '100%',
 		height: '55%',
 	},
-	headerText: {
-		display: 'flex',
-		// backgroundColor: 'blue',
+	headerTextContainer: {
 		flex: 3,
 		justifyContent: 'center',
 	},
@@ -307,10 +308,6 @@ const styles = StyleSheet.create({
 	},
 	subHeadingLocation: {
 		fontSize: sizes.body3,
-	},
-	headingProfile: {
-		fontSize: sizes.heading,
-		fontWeight: 'bold',
 	},
 	profileCard: {
 		display: 'flex',

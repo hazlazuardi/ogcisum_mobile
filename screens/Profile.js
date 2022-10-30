@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
 export default function Profile() {
 	const { profile, dispatchProfile: dispatch } = useProfile();
 
-	console.log('ctx: ', profile);
+	// console.log('ctx: ', profile);
 	async function handleChangePress() {
 		await launchImageLibrary()
 			.then((result) => {
