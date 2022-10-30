@@ -1,13 +1,7 @@
 import React from 'react';
-import {
-	StyleSheet,
-	Text,
-	TouchableOpacity,
-	useColorScheme,
-	View,
-} from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useTheme } from '../context/Context';
-import { colors, sizes } from '../data/theme';
+import { sizes } from '../data/theme';
 
 export default function ButtonIOS({ text, onPress, fullWidth }) {
 	const { themeColors } = useTheme();

@@ -1,8 +1,5 @@
 import React from 'react';
-import {
-	createBottomTabNavigator,
-	useBottomTabBarHeight,
-} from '@react-navigation/bottom-tabs';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Image, StyleSheet, Text, View } from 'react-native';
 
 import icons from '../data/icons';
@@ -72,8 +69,6 @@ function TabIcon({ focused, icon, isLogo, size }) {
 					styles.tabIconContainer,
 					{
 						backgroundColor: focused && colors.blackColorTranslucentLess,
-						padding: 20,
-						height: '100%',
 					},
 				]}
 			>
@@ -100,9 +95,6 @@ function TabIcon({ focused, icon, isLogo, size }) {
 						styles.tabLogoContainer,
 						{
 							backgroundColor: focused && colors.blackColorTranslucentLess,
-							width: '120%',
-							padding: 10,
-							height: '100%',
 						},
 					]}
 				>
@@ -132,6 +124,8 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		justifyContent: 'center',
 		height: '100%',
+		padding: 20,
+
 		// width: '100%',
 	},
 	tabIconImage: {
@@ -147,6 +141,9 @@ const styles = StyleSheet.create({
 		display: 'flex',
 		justifyContent: 'center',
 		alignItems: 'center',
+		width: '120%',
+		padding: 10,
+		height: '100%',
 	},
 	tabLogoText: {
 		color: colors.white,

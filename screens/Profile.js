@@ -4,7 +4,6 @@ import {
 	SafeAreaView,
 	ScrollView,
 	View,
-	Image,
 	Dimensions,
 	Text,
 	StyleSheet,
@@ -142,10 +141,10 @@ function KeyboardAvoid({ children }) {
 	}
 	const { themeColors } = useTheme();
 	return (
-		<KeyboardAvoidingView behavior={'position'}>
-			<SafeAreaView
-				style={{ height: '100%', backgroundColor: themeColors.bgColor }}
-			>
+		<SafeAreaView
+			style={[stl.container, { backgroundColor: themeColors.bgColor }]}
+		>
+			<KeyboardAvoidingView behavior={'position'}>
 				<ScrollView>
 					<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
 						<View style={stl.inner}>
@@ -165,8 +164,8 @@ function KeyboardAvoid({ children }) {
 						</View>
 					</TouchableWithoutFeedback>
 				</ScrollView>
-			</SafeAreaView>
-		</KeyboardAvoidingView>
+			</KeyboardAvoidingView>
+		</SafeAreaView>
 	);
 }
 

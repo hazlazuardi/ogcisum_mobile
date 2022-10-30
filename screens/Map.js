@@ -1,16 +1,9 @@
 // Import React Native
 import React, { useState, useEffect, useMemo } from 'react';
-import {
-	StyleSheet,
-	Appearance,
-	View,
-	SafeAreaView,
-	Text,
-	Image,
-} from 'react-native';
+import { StyleSheet, Appearance } from 'react-native';
 
 // Import React Native Maps
-import MapView, { Marker, Circle } from 'react-native-maps';
+import MapView, { Circle } from 'react-native-maps';
 
 // Import React Native Geolocation
 import Geolocation from '@react-native-community/geolocation';
@@ -92,7 +85,7 @@ export default function Map() {
 			const nearestLocations = memoizedMapState.locations
 				.map((location) => {
 					const metres = getDistance(userLocation, location.coordinates);
-					location['distance'] = {
+					location.distance = {
 						metres: metres,
 						nearbyLocation: metres <= 100 ? true : false,
 					};
@@ -154,7 +147,7 @@ export default function Map() {
 						strokeWidth={3}
 						strokeColor="#A42DE8"
 						fillColor={
-							colorScheme == 'dark'
+							colorScheme === 'dark'
 								? 'rgba(128,0,128,0.5)'
 								: 'rgba(210,169,210,0.5)'
 						}
