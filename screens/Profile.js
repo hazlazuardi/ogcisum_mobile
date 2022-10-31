@@ -39,7 +39,6 @@ const styles = StyleSheet.create({
 		paddingBottom: sizes.padding,
 		marginBottom: sizes.padding,
 	},
-	photoFullImage: {},
 	photoEmptyView: {
 		borderWidth: 3,
 		borderRadius: 10,
@@ -151,7 +150,7 @@ function KeyboardAvoid({ children }) {
 							{children}
 							<TextInput
 								placeholder="Enter Your Name"
-								placeholderTextColor={{ color: themeColors.fgColor }}
+								placeholderTextColor={themeColors.fgColor}
 								style={[
 									stl.textInput,
 									{

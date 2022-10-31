@@ -23,7 +23,7 @@ export default function BottomTabBar({ navigation }) {
 								start={{ x: 0, y: 0 }}
 								end={{ x: 0, y: 1 }}
 								colors={[colors.purpleColorLighter, colors.blueColorDarker]}
-								style={{ height: sizes.bottomTabBarHeight }}
+								style={{ height: '100%' }}
 							/>
 						</View>
 					);
@@ -55,7 +55,7 @@ function tabOptions(icon, isLogo) {
 			<TabIcon focused={focused} icon={icon} isLogo={isLogo} size={size} />
 		),
 		tabBarShowLabel: false,
-		tabBarStyle: [styles.tabContainer, { height: sizes.bottomTabBarHeight }],
+		tabBarStyle: [styles.tabContainer],
 	};
 }
 
