@@ -60,7 +60,7 @@ function tabOptions(icon, isLogo) {
 }
 
 function TabIcon({ focused, icon, isLogo, size }) {
-	const location = useLocation();
+	const { liveLocations } = useLocation();
 	// console.log(location);
 	if (!isLogo) {
 		return (
@@ -88,7 +88,7 @@ function TabIcon({ focused, icon, isLogo, size }) {
 		);
 	}
 	if (isLogo) {
-		if (typeof location !== 'undefined') {
+		if (typeof liveLocations !== 'undefined') {
 			return (
 				<View
 					style={[
@@ -108,7 +108,7 @@ function TabIcon({ focused, icon, isLogo, size }) {
 							},
 						]}
 					/>
-					{location.nearbyLocation.distance?.nearbyLocation && (
+					{liveLocations.nearbyLocation.distance?.nearbyLocation && (
 						<View>
 							<Text style={styles.tabLogoText}>There's Music Nearby</Text>
 						</View>

@@ -17,7 +17,7 @@ import {
 	useSamplesToLocations,
 	useTheme,
 } from '../context/Context';
-// import { dummySample } from '../data/dummy';
+import { dummySample } from '../data/dummy';
 import { colors, sizes } from '../data/theme';
 import ButtonIOS from '../components/ButtonIOS';
 import HeaderText from '../components/HeaderText';
@@ -28,10 +28,11 @@ const { height } = Dimensions.get('window');
 export default function NowPlaying() {
 	const { samples, statusSamples } = useSamples();
 	const { samplesToLocations, statusSTL } = useSamplesToLocations();
-	const { nearbyLocation } = useLocation();
+	const { liveLocations } = useLocation();
+	const { nearbyLocation } = liveLocations;
 	const [recData, setRecData] = useState();
 
-	// console.log(nearbyLocation);
+	console.log(nearbyLocation);
 	// console.log(recData.length === 0);
 
 	function getSamplesFromLocations(nearLoc, allSam, allStl) {
@@ -109,7 +110,7 @@ export default function NowPlaying() {
 
 	function handleActionPress() {
 		const sampleStr = JSON.stringify(recData);
-		// const strdum = JSON.stringify(dummySample);
+		const strdum = JSON.stringify(dummySample);
 		if (!webViewState.actioned) {
 			webViewRef.current.injectJavaScript(`setupParts(${sampleStr})`);
 			webViewRef.current.injectJavaScript('startPlayback()');

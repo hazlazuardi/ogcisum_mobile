@@ -10,8 +10,8 @@ import Geolocation from '@react-native-community/geolocation';
 import { getDistance } from 'geolib';
 
 // Import Locations Data
-import { locations } from '../data/locations';
-import { useLocationDispatch } from '../context/Context';
+// import { locations } from '../data/locations';
+import { useLocation, useLocationDispatch } from '../context/Context';
 
 // Define Stylesheet
 const styles = StyleSheet.create({
@@ -36,19 +36,21 @@ export default function Map() {
 	const dispatchLocations = useLocationDispatch();
 
 	// Convert string-based latlong to object-based on each location
-	const updatedLocations = locations.map((location) => {
-		const latlong = location.latlong.split(', ');
-		location.coordinates = {
-			latitude: parseFloat(latlong[0]),
-			longitude: parseFloat(latlong[1]),
-		};
-		return location;
-	});
+	// const updatedLocations = locations.map((location) => {
+	// 	const latlong = location.latlong.split(', ');
+	// 	location.coordinates = {
+	// 		latitude: parseFloat(latlong[0]),
+	// 		longitude: parseFloat(latlong[1]),
+	// 	};
+	// 	return location;
+	// });
+
+	const { musicLocations } = useLocation();
 
 	// Setup state for map data
 	const initialMapState = {
 		locationPermission: false,
-		locations: updatedLocations,
+		locations: musicLocations,
 		userLocation: {
 			latitude: -27.498248114899546,
 			longitude: 153.01788081097033,
@@ -81,8 +83,8 @@ export default function Map() {
 	);
 	// Only watch the user's current location when device permission granted
 	useEffect(() => {
-		function calculateDistance(userLocation) {
-			const nearestLocations = memoizedMapState.locations
+		function calculateDistance(userLocation, mloc) {
+			const nearestLocations = mloc
 				.map((location) => {
 					const metres = getDistance(userLocation, location.coordinates);
 					location.distance = {
@@ -99,19 +101,23 @@ export default function Map() {
 			return nearestLocations.shift();
 		}
 
-		if (memoizedMapState.locationPermission) {
+		if (musicLocations && memoizedMapState.locationPermission) {
 			Geolocation.watchPosition(
 				(position) => {
 					const userLocation = {
 						latitude: position.coords.latitude,
 						longitude: position.coords.longitude,
 					};
-					const nearbyLocation = calculateDistance(userLocation);
+					const nearbyLocation = calculateDistance(
+						userLocation,
+						musicLocations,
+					);
 					setMapState({
 						...memoizedMapState,
 						userLocation,
 						nearbyLocation: nearbyLocation,
 					});
+					console.log('update nearby');
 					dispatchLocations({
 						type: 'updated',
 						nearbyLocation: nearbyLocation,
@@ -124,7 +130,7 @@ export default function Map() {
 		return () => {
 			Geolocation.clearWatch();
 		};
-	}, [dispatchLocations, memoizedMapState]);
+	}, [dispatchLocations, memoizedMapState, musicLocations]);
 
 	return (
 		<>
@@ -139,20 +145,21 @@ export default function Map() {
 				showsUserLocation={mapState.locationPermission}
 				style={styles.container}
 			>
-				{mapState.locations.map((location) => (
-					<Circle
-						key={location.id}
-						center={location.coordinates}
-						radius={100}
-						strokeWidth={3}
-						strokeColor="#A42DE8"
-						fillColor={
-							colorScheme === 'dark'
-								? 'rgba(128,0,128,0.5)'
-								: 'rgba(210,169,210,0.5)'
-						}
-					/>
-				))}
+				{musicLocations &&
+					musicLocations.map((location) => (
+						<Circle
+							key={location.id}
+							center={location.coordinates}
+							radius={100}
+							strokeWidth={3}
+							strokeColor="#A42DE8"
+							fillColor={
+								colorScheme === 'dark'
+									? 'rgba(128,0,128,0.5)'
+									: 'rgba(210,169,210,0.5)'
+							}
+						/>
+					))}
 			</MapView>
 			{/* <NearbyLocation {...mapState.nearbyLocation} /> */}
 		</>

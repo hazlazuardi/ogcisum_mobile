@@ -1,8 +1,13 @@
-import React from 'react';
+import { getGreatCircleBearing } from 'geolib';
+import React, { useEffect, useRef, useState } from 'react';
 import { createContext, useContext, useReducer } from 'react';
 import { useColorScheme } from 'react-native';
 
-import { SAMPLES_TO_LOCATIONS_URL, SAMPLES_URL } from '../data/constants';
+import {
+	LOCATION_URL,
+	SAMPLES_TO_LOCATIONS_URL,
+	SAMPLES_URL,
+} from '../data/constants';
 import icons from '../data/icons';
 import { colors } from '../data/theme';
 
@@ -21,15 +26,57 @@ const samplesToLocationsFetcher = async () =>
 	await fetch(SAMPLES_TO_LOCATIONS_URL).then((res) => res.json());
 
 export default function StoreProvider({ children }) {
-	const [locations, dispatchLocations] = useReducer(
+	const [liveLocations, dispatchLiveLocations] = useReducer(
 		locationsReducer,
-		initialLocations,
+		initialLiveLocations,
 	);
 	const [profile, dispatchProfile] = useReducer(profileReducer, initialProfile);
 	const colorScheme = useColorScheme();
 	const isDarkMode = colorScheme === 'dark';
 	const themeColors = isDarkMode ? colors.dark : colors.light;
 	const themeIcons = isDarkMode ? icons.dark : icons.light;
+
+	// Fetch Locations
+	// const { status: statusMusicLocations, value: apiLocations } = useFetch(
+	// 	locationsFetcher,
+	// 	true,
+	// );
+
+	// Convert string-based latlong to object-based on each location
+	// let musicLocations;
+	// if (statusMusicLocations === 'success') {
+	// 	musicLocations = apiLocations.map((location) => {
+	// 		const latlong = location.latlong.split(', ');
+	// 		location.coordinates = {
+	// 			latitude: parseFloat(latlong[0]),
+	// 			longitude: parseFloat(latlong[1]),
+	// 		};
+	// 		return location;
+	// 	});
+	// }
+	// const musicLocations = useRef(apiLocations?.locations);
+	const [musicLocations, setMusicLocations] = useState();
+	useEffect(() => {
+		async function getLocations() {
+			await fetch(LOCATION_URL)
+				.then((res) => res.json())
+				.then((res) => {
+					const modified = res.locations.map((location) => {
+						const latlong = location.latlong.split(', ');
+						location.coordinates = {
+							latitude: parseFloat(latlong[0]),
+							longitude: parseFloat(latlong[1]),
+						};
+						return location;
+					});
+					setMusicLocations(modified);
+				})
+				.catch((e) => console.log(e));
+		}
+		getLocations();
+	}, []);
+
+	// console.log('locations', musicLocations);
 
 	// Fetch Samples
 	const { status: statusSamples, value: samples } = useFetch(
@@ -46,8 +93,13 @@ export default function StoreProvider({ children }) {
 	return (
 		<ThemeContext.Provider value={{ themeColors, themeIcons }}>
 			<ProfileContext.Provider value={{ profile, dispatchProfile }}>
-				<LocationContext.Provider value={locations}>
-					<LocationDispatchContext.Provider value={dispatchLocations}>
+				<LocationContext.Provider
+					value={{
+						liveLocations,
+						musicLocations: musicLocations,
+					}}
+				>
+					<LocationDispatchContext.Provider value={dispatchLiveLocations}>
 						<SamplesContext.Provider
 							value={{ samples: samples?.samples, statusSamples }}
 						>
@@ -125,7 +177,7 @@ function profileReducer(state, action) {
 	}
 }
 
-const initialLocations = {
+const initialLiveLocations = {
 	nearbyLocation: {},
 	nearbySamples: [],
 	user: {},
