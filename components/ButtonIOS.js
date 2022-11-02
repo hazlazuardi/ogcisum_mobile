@@ -3,23 +3,34 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useTheme } from '../context/Context';
 import { sizes } from '../data/theme';
 
+/**
+ *
+ * @param {string} text — text in the button
+ * @param {function} onPress — function invoked when the button is pressed
+ * @param {boolean} fullWidth — specify whether the button should be full width or not
+ * @returns React component for ButtonIOS
+ */
 export default function ButtonIOS({ text, onPress, fullWidth }) {
 	const { themeColors } = useTheme();
 
+	/** Object containing styles that use dynamic conditions. */
+	const dynamicStyles = {
+		buttonTouchable: {
+			backgroundColor: themeColors.headerTextColor,
+			flex: fullWidth && 1,
+		},
+		buttonText: {
+			color: themeColors.bgColor,
+		},
+	};
+
 	return (
 		<View style={styles.buttonContainer}>
-			{/* <Button onPress={handleReloadPress} title="Reload WebView" /> */}
 			<TouchableOpacity
-				style={[
-					styles.buttonBackground,
-					{
-						backgroundColor: themeColors.headerTextColor,
-						flex: fullWidth && 1,
-					},
-				]}
+				style={[styles.buttonTouchable, dynamicStyles.buttonTouchable]}
 				onPress={onPress}
 			>
-				<Text style={[styles.buttonText, { color: themeColors.bgColor }]}>
+				<Text style={[styles.buttonText, dynamicStyles.buttonText]}>
 					{text}
 				</Text>
 			</TouchableOpacity>
@@ -27,12 +38,13 @@ export default function ButtonIOS({ text, onPress, fullWidth }) {
 	);
 }
 
+/** Stylesheet containing styles that use non-dynamic conditions. Exists so these objects won't re-render */
 const styles = StyleSheet.create({
 	buttonContainer: {
 		flexDirection: 'row',
 		justifyContent: 'space-around',
 	},
-	buttonBackground: {
+	buttonTouchable: {
 		paddingHorizontal: sizes.padding,
 		paddingVertical: sizes.padding / 2,
 		display: 'flex',

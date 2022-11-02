@@ -17,7 +17,7 @@ import {
 	useSamplesToLocations,
 	useTheme,
 } from '../context/Context';
-import { dummySample } from '../data/dummy';
+// import { dummySample } from '../data/dummy';
 import { colors, sizes } from '../data/theme';
 import ButtonIOS from '../components/ButtonIOS';
 import HeaderText from '../components/HeaderText';
@@ -110,7 +110,7 @@ export default function NowPlaying() {
 
 	function handleActionPress() {
 		const sampleStr = JSON.stringify(recData);
-		const strdum = JSON.stringify(dummySample);
+		// const strdum = JSON.stringify(dummySample);
 		if (!webViewState.actioned) {
 			webViewRef.current.injectJavaScript(`setupParts(${sampleStr})`);
 			webViewRef.current.injectJavaScript('startPlayback()');
@@ -149,7 +149,7 @@ export default function NowPlaying() {
 					</View>
 				)}
 			</ScrollView>
-			<View style={false && styles.webViewContainer}>
+			<View style={true && styles.webViewContainer}>
 				<WebView
 					ref={(ref) => (webViewRef.current = ref)}
 					originWhitelist={['*']}

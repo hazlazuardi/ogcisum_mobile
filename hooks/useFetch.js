@@ -1,7 +1,7 @@
 // Reference:
 // https://usehooks.com
 
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 // Usage
 export default function useFetch(asyncFunction, immediate = true) {
 	const [status, setStatus] = useState('idle');

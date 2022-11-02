@@ -1,5 +1,4 @@
-import { getGreatCircleBearing } from 'geolib';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { createContext, useContext, useReducer } from 'react';
 import { useColorScheme } from 'react-native';
 
@@ -20,41 +19,33 @@ const SamplesToLocationsContext = createContext(null);
 const ProfileContext = createContext(null);
 const ThemeContext = createContext(null);
 
+/** Function as async function for custom hook useFetch. */
 const samplesFetcher = async () =>
 	await fetch(SAMPLES_URL).then((res) => res.json());
+
+/** Function as async function for custom hook useFetch. */
 const samplesToLocationsFetcher = async () =>
 	await fetch(SAMPLES_TO_LOCATIONS_URL).then((res) => res.json());
 
 export default function StoreProvider({ children }) {
+	/** Reducer to store live locations and update it using dispatch. */
 	const [liveLocations, dispatchLiveLocations] = useReducer(
 		locationsReducer,
 		initialLiveLocations,
 	);
+
+	/** Reducer to store live locations and update it using dispatch. */
 	const [profile, dispatchProfile] = useReducer(profileReducer, initialProfile);
+
+	/** Detect device's color scheme. */
 	const colorScheme = useColorScheme();
 	const isDarkMode = colorScheme === 'dark';
+
+	/** Objects containing colors and icons based on color scheme. */
 	const themeColors = isDarkMode ? colors.dark : colors.light;
 	const themeIcons = isDarkMode ? icons.dark : icons.light;
 
-	// Fetch Locations
-	// const { status: statusMusicLocations, value: apiLocations } = useFetch(
-	// 	locationsFetcher,
-	// 	true,
-	// );
-
-	// Convert string-based latlong to object-based on each location
-	// let musicLocations;
-	// if (statusMusicLocations === 'success') {
-	// 	musicLocations = apiLocations.map((location) => {
-	// 		const latlong = location.latlong.split(', ');
-	// 		location.coordinates = {
-	// 			latitude: parseFloat(latlong[0]),
-	// 			longitude: parseFloat(latlong[1]),
-	// 		};
-	// 		return location;
-	// 	});
-	// }
-	// const musicLocations = useRef(apiLocations?.locations);
+	/** This is to fetch locations from API and store it into a state. */
 	const [musicLocations, setMusicLocations] = useState();
 	useEffect(() => {
 		async function getLocations() {
@@ -76,15 +67,13 @@ export default function StoreProvider({ children }) {
 		getLocations();
 	}, []);
 
-	// console.log('locations', musicLocations);
-
-	// Fetch Samples
+	/** This is to fetch samples using custom hooks from API and store it into a state. */
 	const { status: statusSamples, value: samples } = useFetch(
 		samplesFetcher,
 		true,
 	);
 
-	// Fetch Samples to Locations
+	/** This is to fetch samples_to_locations using custom hooks from API and store it into a state. */
 	const { status: statusSTL, value: samplesToLocations } = useFetch(
 		samplesToLocationsFetcher,
 		true,
@@ -119,29 +108,37 @@ export default function StoreProvider({ children }) {
 	);
 }
 
+/** Custom hook to get live locations from context. */
 export function useLocation() {
 	return useContext(LocationContext);
 }
 
+/** Custom hook to update live locations from context. */
 export function useLocationDispatch() {
 	return useContext(LocationDispatchContext);
 }
 
+/** Custom hook to get samples from context. */
 export function useSamples() {
 	return useContext(SamplesContext);
 }
+
+/** Custom hook to get samples_to_locations from context. */
 export function useSamplesToLocations() {
 	return useContext(SamplesToLocationsContext);
 }
 
+/** Custom hook to get profile from context. */
 export function useProfile() {
 	return useContext(ProfileContext);
 }
 
+/** Custom hook to get colors and icons from context. */
 export function useTheme() {
 	return useContext(ThemeContext);
 }
 
+/** Function as reducer for live locations. */
 function locationsReducer(state, action) {
 	switch (action.type) {
 		case 'updated': {
@@ -157,6 +154,7 @@ function locationsReducer(state, action) {
 	}
 }
 
+/** Function as reducer for profile. */
 function profileReducer(state, action) {
 	switch (action.type) {
 		case 'setPhoto': {
