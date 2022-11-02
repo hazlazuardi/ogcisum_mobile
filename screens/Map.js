@@ -1,5 +1,5 @@
 // Import React Native
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { StyleSheet, Appearance } from 'react-native';
 
 // Import React Native Maps
@@ -12,6 +12,8 @@ import { getDistance } from 'geolib';
 // Import Locations Data
 // import { locations } from '../data/locations';
 import { useLocation, useLocationDispatch } from '../context/Context';
+
+import { LogBox } from 'react-native';
 
 // Define Stylesheet
 const styles = StyleSheet.create({
@@ -33,17 +35,9 @@ const colorScheme = Appearance.getColorScheme();
 
 // Main component for displaying the map and markers
 export default function Map() {
-	const dispatchLocations = useLocationDispatch();
+	LogBox.ignoreAllLogs();
 
-	// Convert string-based latlong to object-based on each location
-	// const updatedLocations = locations.map((location) => {
-	// 	const latlong = location.latlong.split(', ');
-	// 	location.coordinates = {
-	// 		latitude: parseFloat(latlong[0]),
-	// 		longitude: parseFloat(latlong[1]),
-	// 	};
-	// 	return location;
-	// });
+	const dispatchLocations = useLocationDispatch();
 
 	const { musicLocations } = useLocation();
 
@@ -64,10 +58,19 @@ export default function Map() {
 	// Only Android needs extra code to check for permissions (in addition to android/app/src/main/AndroidManifest.xml)
 	// iOS relies on ios/mapApp/Info.plist
 	useEffect(() => {
-		setMapState({
-			...mapState,
-			locationPermission: true,
-		});
+		Geolocation.requestAuthorization(
+			(success) => {
+				setMapState({ ...memoizedMapState, locationPermission: true });
+			},
+			(error) => {
+				setMapState({ ...memoizedMapState, locationPermission: false });
+			},
+		);
+
+		// setMapState({
+		// 	...mapState,
+		// 	locationPermission: true,
+		// });
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
@@ -81,28 +84,31 @@ export default function Map() {
 			mapState.nearbyLocation,
 		],
 	);
-	// Only watch the user's current location when device permission granted
-	useEffect(() => {
-		function calculateDistance(userLocation, mloc) {
-			const nearestLocations = mloc
-				.map((location) => {
-					const metres = getDistance(userLocation, location.coordinates);
-					location.distance = {
-						metres: metres,
-						nearbyLocation: metres <= 100 ? true : false,
-					};
-					return location;
-				})
-				.sort((previousLocation, thisLocation) => {
-					return (
-						previousLocation.distance.metres - thisLocation.distance.metres
-					);
-				});
-			return nearestLocations.shift();
-		}
 
-		if (musicLocations && memoizedMapState.locationPermission) {
-			Geolocation.watchPosition(
+	const calculateDistance = useCallback((userLocation, mloc) => {
+		const nearestLocations = mloc
+			.map((location) => {
+				const metres = getDistance(userLocation, location.coordinates);
+				location.distance = {
+					metres: metres,
+					nearbyLocation: metres <= 100 ? true : false,
+				};
+				return location;
+			})
+			.sort((previousLocation, thisLocation) => {
+				return previousLocation.distance.metres - thisLocation.distance.metres;
+			});
+		return nearestLocations.shift();
+	}, []);
+
+	// Only watch the user's current location when device permission granted
+	LogBox.ignoreLogs([
+		'Sending `geolocationDidChange` with no listeners registered.',
+	]); // Ignore log notification by message
+	useEffect(() => {
+		let watchID = null;
+		if (musicLocations && memoizedMapState.locationPermission === true) {
+			watchID = Geolocation.watchPosition(
 				(position) => {
 					const userLocation = {
 						latitude: position.coords.latitude,
@@ -117,20 +123,28 @@ export default function Map() {
 						userLocation,
 						nearbyLocation: nearbyLocation,
 					});
-					console.log('update nearby');
 					dispatchLocations({
 						type: 'updated',
 						nearbyLocation: nearbyLocation,
 						user: userLocation,
 					});
 				},
-				(error) => console.log(error),
+				(error) => {
+					// Geolocation.requestAuthorization(
+					// 	(success) => {
+					// 		setMapState({ ...memoizedMapState, locationPermission: true });
+					// 	},
+					// 	(error) => {
+					// 		setMapState({ ...memoizedMapState, locationPermission: false });
+					// 	},
+					// );
+				},
 			);
 		}
 		return () => {
-			Geolocation.clearWatch();
+			watchID !== null && Geolocation.clearWatch(watchID);
 		};
-	}, [dispatchLocations, memoizedMapState, musicLocations]);
+	}, [calculateDistance, dispatchLocations, memoizedMapState, musicLocations]);
 
 	return (
 		<>

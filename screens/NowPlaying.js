@@ -32,7 +32,6 @@ export default function NowPlaying() {
 	const { nearbyLocation } = liveLocations;
 	const [recData, setRecData] = useState();
 
-	console.log(nearbyLocation);
 	// console.log(recData.length === 0);
 
 	function getSamplesFromLocations(nearLoc, allSam, allStl) {
@@ -149,7 +148,7 @@ export default function NowPlaying() {
 					</View>
 				)}
 			</ScrollView>
-			<View style={true && styles.webViewContainer}>
+			<View style={false && styles.webViewContainer}>
 				<WebView
 					ref={(ref) => (webViewRef.current = ref)}
 					originWhitelist={['*']}
@@ -193,13 +192,15 @@ function PhotoProfile({ isUser }) {
 }
 
 function PlayButton({ webViewState, handlePlay }) {
-	return (
-		<ButtonIOS
-			text={!webViewState.actioned ? 'Play Music' : 'Stop Music'}
-			onPress={handlePlay}
-			fullWidth
-		/>
-	);
+	let buttonText;
+	if (webViewState.loaded && !webViewState.actioned) {
+		buttonText = 'Play Music';
+	} else if (webViewState.loaded && webViewState.actioned) {
+		buttonText = 'Stop Music';
+	} else {
+		buttonText = 'Loading Samples..';
+	}
+	return <ButtonIOS text={buttonText} onPress={handlePlay} fullWidth />;
 }
 
 function MusicPlayer({ nearbyLocation, webViewState, handlePlay }) {
