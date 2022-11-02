@@ -10,13 +10,15 @@ import { sizes } from '../data/theme';
  * @param {boolean} fullWidth — specify whether the button should be full width or not
  * @returns React component for ButtonIOS
  */
-export default function ButtonIOS({ text, onPress, fullWidth }) {
+export default function ButtonIOS({ text, onPress, fullWidth, disabled }) {
 	const { themeColors } = useTheme();
 
 	/** Object containing styles that use dynamic conditions. */
 	const dynamicStyles = {
 		buttonTouchable: {
-			backgroundColor: themeColors.headerTextColor,
+			backgroundColor: disabled
+				? themeColors.fgColorLighter
+				: themeColors.headerTextColor,
 			flex: fullWidth && 1,
 		},
 		buttonText: {
@@ -29,6 +31,7 @@ export default function ButtonIOS({ text, onPress, fullWidth }) {
 			<TouchableOpacity
 				style={[styles.buttonTouchable, dynamicStyles.buttonTouchable]}
 				onPress={onPress}
+				disabled={disabled}
 			>
 				<Text style={[styles.buttonText, dynamicStyles.buttonText]}>
 					{text}
@@ -51,6 +54,9 @@ const styles = StyleSheet.create({
 		justifyContent: 'center',
 		alignItems: 'center',
 		borderRadius: sizes.radius,
+	},
+	buttonDisabled: {
+		opacity: '0.5',
 	},
 	buttonText: {
 		fontWeight: '800',

@@ -200,7 +200,14 @@ function PlayButton({ webViewState, handlePlay }) {
 	} else {
 		buttonText = 'Loading Samples..';
 	}
-	return <ButtonIOS text={buttonText} onPress={handlePlay} fullWidth />;
+	return (
+		<ButtonIOS
+			text={buttonText}
+			onPress={handlePlay}
+			fullWidth
+			disabled={!webViewState.loaded}
+		/>
+	);
 }
 
 function MusicPlayer({ nearbyLocation, webViewState, handlePlay }) {
