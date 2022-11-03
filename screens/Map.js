@@ -1,6 +1,6 @@
 // Import React Native
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { StyleSheet, Appearance } from 'react-native';
+import { StyleSheet, LogBox } from 'react-native';
 
 // Import React Native Maps
 import MapView, { Circle } from 'react-native-maps';
@@ -9,39 +9,23 @@ import MapView, { Circle } from 'react-native-maps';
 import Geolocation from '@react-native-community/geolocation';
 import { getDistance } from 'geolib';
 
-// Import Locations Data
-// import { locations } from '../data/locations';
-import { useLocation, useLocationDispatch } from '../context/Context';
+import { useLocation, useLocationDispatch, useTheme } from '../context/Context';
 
-import { LogBox } from 'react-native';
-
-// Define Stylesheet
-const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-	},
-	nearbyLocationSafeAreaView: {
-		backgroundColor: 'black',
-	},
-	nearbyLocationView: {
-		padding: 20,
-	},
-	nearbyLocationText: {
-		color: 'white',
-		lineHeight: 25,
-	},
-});
-const colorScheme = Appearance.getColorScheme();
-
-// Main component for displaying the map and markers
+/**
+ *	This is the main component of Map page
+ * @returns React component for Map page
+ */
 export default function Map() {
-	LogBox.ignoreAllLogs();
+	/** Ignore all warning logs related to Geolocation */
+	LogBox.ignoreLogs([
+		'Sending `geolocationError` with no listeners registered.',
+		'Sending `geolocationDidChange` with no listeners registered.',
+	]);
 
-	const dispatchLocations = useLocationDispatch();
-
+	/** retrieve music locations from Context */
 	const { musicLocations } = useLocation();
 
-	// Setup state for map data
+	/** set up initial map state data for initial render */
 	const initialMapState = {
 		locationPermission: false,
 		locations: musicLocations,
@@ -54,41 +38,44 @@ export default function Map() {
 	};
 	const [mapState, setMapState] = useState(initialMapState);
 
-	// Run location permissions check after render due to side effects
-	// Only Android needs extra code to check for permissions (in addition to android/app/src/main/AndroidManifest.xml)
-	// iOS relies on ios/mapApp/Info.plist
+	/**
+	 * Run location permissions check after render due to side effects
+	 * iOS relies on ios/mapApp/Info.plist
+	 */
 	useEffect(() => {
-		Geolocation.requestAuthorization(
-			(success) => {
-				setMapState({ ...memoizedMapState, locationPermission: true });
-			},
-			(error) => {
-				setMapState({ ...memoizedMapState, locationPermission: false });
-			},
-		);
-
-		// setMapState({
-		// 	...mapState,
-		// 	locationPermission: true,
-		// });
+		setMapState({
+			...mapState,
+			locationPermission: true,
+		});
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
-	const memoizedMapState = useMemo(
-		() => mapState,
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-		[
-			mapState.userLocation,
-			mapState.locationPermission,
-			mapState.locations,
-			mapState.nearbyLocation,
-		],
-	);
+	/** Memoize Map State to avoid infinite re-render*/
+	const memoizedMapState = useMemo(() => {
+		return {
+			userLocation: mapState.userLocation,
+			locations: mapState.locations,
+			nearbyLocation: mapState.nearbyLocation,
+			locationPermission: mapState.locationPermission,
+		};
+	}, [
+		mapState.userLocation,
+		mapState.locations,
+		mapState.nearbyLocation,
+		mapState.locationPermission,
+	]);
 
-	const calculateDistance = useCallback((userLocation, mloc) => {
-		const nearestLocations = mloc
+	/**
+	 * This is a function to calculate distance between user location and music locations,
+	 * and to find the nearest music location
+	 * @param {Object} userCoordinate — Objects containing user's location coordinate
+	 * @param {Array}  musicCoordinates — Array of Objects containing musics location coordinates
+	 * @returns Object containing the nearest music location coordinate
+	 */
+	const calculateDistance = useCallback((userCoordinate, musicCoordinates) => {
+		const nearestLocations = musicCoordinates
 			.map((location) => {
-				const metres = getDistance(userLocation, location.coordinates);
+				const metres = getDistance(userCoordinate, location.coordinates);
 				location.distance = {
 					metres: metres,
 					nearbyLocation: metres <= 100 ? true : false,
@@ -101,10 +88,10 @@ export default function Map() {
 		return nearestLocations.shift();
 	}, []);
 
-	// Only watch the user's current location when device permission granted
-	LogBox.ignoreLogs([
-		'Sending `geolocationDidChange` with no listeners registered.',
-	]); // Ignore log notification by message
+	/** Retrieve dispatch location reducer function from Context  */
+	const dispatchLocations = useLocationDispatch();
+
+	/** useEffect to watch user's position in real time */
 	useEffect(() => {
 		let watchID = null;
 		if (musicLocations && memoizedMapState.locationPermission === true) {
@@ -129,16 +116,7 @@ export default function Map() {
 						user: userLocation,
 					});
 				},
-				(error) => {
-					// Geolocation.requestAuthorization(
-					// 	(success) => {
-					// 		setMapState({ ...memoizedMapState, locationPermission: true });
-					// 	},
-					// 	(error) => {
-					// 		setMapState({ ...memoizedMapState, locationPermission: false });
-					// 	},
-					// );
-				},
+				(error) => {},
 			);
 		}
 		return () => {
@@ -146,6 +124,18 @@ export default function Map() {
 		};
 	}, [calculateDistance, dispatchLocations, memoizedMapState, musicLocations]);
 
+	/** Retrieve current device's color scheme from Context */
+	const { isDarkMode } = useTheme();
+
+	/** Memoize dynamic styles to avoid re-creation */
+	const dynamicStyles = useMemo(() => {
+		return {
+			circleFill: isDarkMode ? 'rgba(128,0,128,0.5)' : 'rgba(210,169,210,0.5)',
+			circleStroke: '#A42DE8',
+		};
+	}, [isDarkMode]);
+
+	/** Return Map page */
 	return (
 		<>
 			<MapView
@@ -166,16 +156,28 @@ export default function Map() {
 							center={location.coordinates}
 							radius={100}
 							strokeWidth={3}
-							strokeColor="#A42DE8"
-							fillColor={
-								colorScheme === 'dark'
-									? 'rgba(128,0,128,0.5)'
-									: 'rgba(210,169,210,0.5)'
-							}
+							strokeColor={dynamicStyles.circleStroke}
+							fillColor={dynamicStyles.circleFill}
 						/>
 					))}
 			</MapView>
-			{/* <NearbyLocation {...mapState.nearbyLocation} /> */}
 		</>
 	);
 }
+
+/** Stylesheet containing styles that use non-dynamic conditions. Exists so these objects won't re-render */
+const styles = StyleSheet.create({
+	container: {
+		flex: 1,
+	},
+	nearbyLocationSafeAreaView: {
+		backgroundColor: 'black',
+	},
+	nearbyLocationView: {
+		padding: 20,
+	},
+	nearbyLocationText: {
+		color: 'white',
+		lineHeight: 25,
+	},
+});

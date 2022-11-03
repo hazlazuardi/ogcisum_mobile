@@ -80,7 +80,7 @@ export default function StoreProvider({ children }) {
 	);
 
 	return (
-		<ThemeContext.Provider value={{ themeColors, themeIcons }}>
+		<ThemeContext.Provider value={{ isDarkMode, themeColors, themeIcons }}>
 			<ProfileContext.Provider value={{ profile, dispatchProfile }}>
 				<LocationContext.Provider
 					value={{
