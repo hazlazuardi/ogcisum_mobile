@@ -1,5 +1,11 @@
 // Import React Native
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, {
+	useState,
+	useEffect,
+	useMemo,
+	useCallback,
+	useRef,
+} from 'react';
 import { StyleSheet, LogBox } from 'react-native';
 
 // Import React Native Maps
@@ -23,7 +29,7 @@ export default function Map() {
 	]);
 
 	/** retrieve music locations from Context */
-	const { musicLocations } = useLocation();
+	const { liveLocations, musicLocations } = useLocation();
 
 	/** set up initial map state data for initial render */
 	const initialMapState = {
@@ -72,49 +78,27 @@ export default function Map() {
 	 * @param {Array}  musicCoordinates — Array of Objects containing musics location coordinates
 	 * @returns Object containing the nearest music location coordinate
 	 */
-	const calculateDistance = useCallback((userCoordinate, musicCoordinates) => {
-		const nearestLocations = musicCoordinates
-			.map((location) => {
-				const metres = getDistance(userCoordinate, location.coordinates);
-				location.distance = {
-					metres: metres,
-					nearbyLocation: metres <= 100 ? true : false,
-				};
-				return location;
-			})
-			.sort((previousLocation, thisLocation) => {
-				return previousLocation.distance.metres - thisLocation.distance.metres;
-			});
-		return nearestLocations.shift();
-	}, []);
 
 	/** Retrieve dispatch location reducer function from Context  */
-	const dispatchLocations = useLocationDispatch();
+	// const dispatchLocations = useLocationDispatch();
 
+	// const refTmpUserLoc = useRef(tmpUserLoc);
+	const [tmpUserLoc, setTmpUserLoc] = useState({
+		latitude: null,
+		longitude: null,
+	});
 	/** useEffect to watch user's position in real time */
 	useEffect(() => {
 		let watchID = null;
 		if (musicLocations && memoizedMapState.locationPermission === true) {
 			watchID = Geolocation.watchPosition(
 				(position) => {
+					console.log('wID', watchID);
 					const userLocation = {
 						latitude: position.coords.latitude,
 						longitude: position.coords.longitude,
 					};
-					const nearbyLocation = calculateDistance(
-						userLocation,
-						musicLocations,
-					);
-					setMapState({
-						...memoizedMapState,
-						userLocation,
-						nearbyLocation: nearbyLocation,
-					});
-					dispatchLocations({
-						type: 'updated',
-						nearbyLocation: nearbyLocation,
-						user: userLocation,
-					});
+					setTmpUserLoc(userLocation);
 				},
 				(error) => {},
 			);
@@ -122,7 +106,77 @@ export default function Map() {
 		return () => {
 			watchID !== null && Geolocation.clearWatch(watchID);
 		};
-	}, [calculateDistance, dispatchLocations, memoizedMapState, musicLocations]);
+	}, [memoizedMapState.locationPermission, musicLocations]);
+
+	// useEffect(() => {
+	// 	console.log('tmpUserLoc: ', tmpUserLoc);
+	// }, [tmpUserLoc]);
+
+	const setLiveLocations = useLocationDispatch();
+	useEffect(() => {
+		console.log('setLocations: ');
+		setLiveLocations((prev) => ({
+			...prev,
+			userLocation: {
+				latitude: tmpUserLoc.latitude,
+				longitude: tmpUserLoc.longitude,
+			},
+		}));
+	}, [setLiveLocations, tmpUserLoc.latitude, tmpUserLoc.longitude]);
+
+	// useEffect(() => {
+	// 	console.log('live locations: ', liveLocations);
+	// }, [liveLocations]);
+
+	// useEffect(() => {
+	// 	console.log('musicLocations: ', musicLocations);
+	// }, [musicLocations]);
+
+	// const tmpMsl = { ...musicLocations };
+	const [tmpNearbyLoc, setTmpNearbyLoc] = useState();
+	useEffect(() => {
+		function calculateDistance(userCoordinate, musicCoordinates) {
+			const nearestLocations = musicCoordinates
+				?.map((location) => {
+					const metres = getDistance(userCoordinate, location.coordinates);
+					location.distance = {
+						metres: metres,
+						nearbyLocation: metres <= 100 ? true : false,
+					};
+					return location;
+				})
+				.sort((previousLocation, thisLocation) => {
+					return (
+						previousLocation.distance.metres - thisLocation.distance.metres
+					);
+				});
+			return nearestLocations.shift();
+		}
+
+		if (tmpUserLoc === null) return;
+		console.log('musicLoc: ', musicLocations);
+		console.log('tmpLocCal: ', tmpUserLoc);
+		if (tmpUserLoc.latitude && tmpUserLoc.longitude && musicLocations) {
+			// console.log('nearbyLoc: ', calculateDistance(tmpUserLoc, musicLocations));
+			const nl = calculateDistance(tmpUserLoc, musicLocations);
+			// console.log('nearby: ', typeof nl);
+			setTmpNearbyLoc(nl);
+		}
+	}, [musicLocations, tmpUserLoc]);
+
+	// useEffect(() => {
+	// 	console.log('tmpNear: ', tmpNearbyLoc);
+	// }, [tmpNearbyLoc]);
+
+	useEffect(() => {
+		if (tmpNearbyLoc?.distance) {
+			console.log('setNearby: ');
+			setLiveLocations((prev) => ({
+				...prev,
+				nearbyLocation: tmpNearbyLoc,
+			}));
+		}
+	}, [setLiveLocations, tmpNearbyLoc]);
 
 	/** Retrieve current device's color scheme from Context */
 	const { isDarkMode } = useTheme();

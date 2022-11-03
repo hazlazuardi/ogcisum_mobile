@@ -7,7 +7,7 @@ import { colors, sizes } from '../data/theme';
 import Map from '../screens/Map';
 import NowPlaying from '../screens/NowPlaying';
 import Profile from '../screens/Profile';
-import { useLocation } from '../context/Context';
+import { useLocation, useSamples } from '../context/Context';
 import LinearGradient from 'react-native-linear-gradient';
 
 const Tab = createBottomTabNavigator();
@@ -61,6 +61,7 @@ function tabOptions(icon, isLogo) {
 
 function TabIcon({ focused, icon, isLogo, size }) {
 	const { liveLocations } = useLocation();
+	const { hasRecordingData } = useSamples();
 	// console.log(location);
 	if (!isLogo) {
 		return (
@@ -108,11 +109,12 @@ function TabIcon({ focused, icon, isLogo, size }) {
 							},
 						]}
 					/>
-					{liveLocations.nearbyLocation.distance?.nearbyLocation && (
-						<View>
-							<Text style={styles.tabLogoText}>There's Music Nearby</Text>
-						</View>
-					)}
+					{liveLocations.nearbyLocation.distance?.nearbyLocation &&
+						hasRecordingData && (
+							<View>
+								<Text style={styles.tabLogoText}>There's Music Nearby</Text>
+							</View>
+						)}
 				</View>
 			);
 		}
