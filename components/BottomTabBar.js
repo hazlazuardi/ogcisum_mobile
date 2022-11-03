@@ -23,7 +23,7 @@ export default function BottomTabBar({ navigation }) {
 								start={{ x: 0, y: 0 }}
 								end={{ x: 0, y: 1 }}
 								colors={[colors.purpleColorLighter, colors.blueColorDarker]}
-								style={{ height: '100%' }}
+								style={styles.linearGradient}
 							/>
 						</View>
 					);
@@ -150,5 +150,8 @@ const styles = StyleSheet.create({
 		color: colors.white,
 		textAlign: 'center',
 		fontSize: sizes.body5,
+	},
+	linearGradient: {
+		height: '100%',
 	},
 });

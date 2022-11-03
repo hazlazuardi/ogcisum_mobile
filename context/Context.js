@@ -60,10 +60,11 @@ export default function StoreProvider({ children }) {
 	const { value: samples } = useFetch(samplesFetcher, true);
 
 	/** This is to fetch samples_to_locations using custom hooks from API and store it into a state. */
-	const { value: samplesToLocations } = useFetch(
-		samplesToLocationsFetcher,
-		true,
-	);
+	const {
+		value: samplesToLocations,
+		execute: fetchSTL,
+		status: statusSTL,
+	} = useFetch(samplesToLocationsFetcher, true);
 
 	const [recordingData, setRecordingData] = useState(null);
 	const [hasRecordingData, setHasRecordingData] = useState(false);
@@ -128,7 +129,12 @@ export default function StoreProvider({ children }) {
 				<LocationContext.Provider value={{ liveLocations, musicLocations }}>
 					<LocationDispatchContext.Provider value={setLiveLocations}>
 						<SamplesContext.Provider
-							value={{ recordingData, hasRecordingData }}
+							value={{
+								recordingData,
+								hasRecordingData,
+								fetchSTL,
+								statusSTL,
+							}}
 						>
 							{children}
 						</SamplesContext.Provider>

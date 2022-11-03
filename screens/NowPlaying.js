@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useMemo } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useIsFocused } from '@react-navigation/native';
 import {
 	SafeAreaView,
@@ -7,6 +7,7 @@ import {
 	Image,
 	Dimensions,
 	StyleSheet,
+	RefreshControl,
 } from 'react-native';
 
 import { WebView } from 'react-native-webview';
@@ -14,10 +15,8 @@ import {
 	useLocation,
 	useProfile,
 	useSamples,
-	useSamplesToLocations,
 	useTheme,
 } from '../context/Context';
-// import { dummySample } from '../data/dummy';
 import { colors, sizes } from '../data/theme';
 import ButtonIOS from '../components/ButtonIOS';
 import HeaderText from '../components/HeaderText';
@@ -26,67 +25,24 @@ import TitleText from '../components/TitleText';
 
 const { height } = Dimensions.get('window');
 export default function NowPlaying() {
-	const { samples, statusSamples } = useSamples();
-	const { samplesToLocations, statusSTL } = useSamplesToLocations();
+	const { recordingData, hasRecordingData, fetchSTL, statusSTL } = useSamples();
 	const { liveLocations } = useLocation();
 	const { nearbyLocation } = liveLocations;
-	const [recData, setRecData] = useState();
 
-	// console.log(recData.length === 0);
+	const [refreshing, setRefreshing] = useState(false);
 
-	function getSamplesFromLocations(nearLoc, allSam, allStl) {
-		// console.log('nearf: ', typeof nearLoc.id);
-		// console.log('allSam: ', allSam);
-		// console.log('allStl: ', allStl);
-		// Filter samples to location by location_id
-		const filteredStl = allStl
-			.filter((stl) => stl.locations_id === nearLoc.id)
-			.map((stl) => stl);
-		// Make a list of samples_id to filter samples
-		const sidRef = filteredStl.map((stl) => stl.samples_id);
-		//  Filter samples by samples_id
-		const filteredSam = allSam
-			.filter((sam) => sidRef.includes(sam.id))
-			.map((sam) => {
-				const parsedRec = {
-					...sam,
-					recording_data: JSON.parse(sam.recording_data),
-				};
-				return parsedRec;
-			});
-		return filteredSam;
-	}
-
-	const memoizedNearby = useMemo(
-		() => nearbyLocation,
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-		[nearbyLocation.distance],
-	);
-	useEffect(() => {
-		// webViewRef.current.injectJavaScript(`setupParts([${dummySample})]`);
-		if (
-			memoizedNearby &&
-			statusSTL === 'success' &&
-			statusSamples === 'success'
-		) {
-			// console.log(getSamplesFromLocations(nearbyLocation, samples, samplesToLocations));
-			const sams = getSamplesFromLocations(
-				nearbyLocation,
-				samples,
-				samplesToLocations,
-			);
-			const rec = sams.map((sample) => {
-				return { type: sample.type, recording_data: sample.recording_data };
-			});
-			// Make a list of filtered recording data
-			setRecData(rec);
-			// console.log(rec);
-			// console.log('dummy', JSON.stringify(dummySample));
-			// console.log('real', JSON.stringify(rec));
+	const onRefresh = useCallback(() => {
+		setRefreshing(true);
+		console.log('refresh');
+		fetchSTL();
+		console.log(statusSTL);
+		if (statusSTL === 'success') {
+			setRefreshing(false);
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [memoizedNearby]);
+	}, []);
 
+	/** Reload webView when the screen changes */
 	const isFocused = useIsFocused();
 	useEffect(() => {
 		if (isFocused) {
@@ -94,12 +50,14 @@ export default function NowPlaying() {
 		}
 	}, [isFocused]);
 
+	/** useState to store webView loaded or actioned */
 	const [webViewState, setWebViewState] = useState({
 		loaded: false,
 		actioned: false,
 	});
 	const webViewRef = useRef();
 
+	/** This function is invoked when webView is loaded (onLoad) */
 	function webViewLoaded() {
 		setWebViewState({
 			...webViewState,
@@ -107,15 +65,14 @@ export default function NowPlaying() {
 		});
 	}
 
+	/** This function is invoked when play button is pressed (onPress) */
 	function handleActionPress() {
-		const sampleStr = JSON.stringify(recData);
-		// const strdum = JSON.stringify(dummySample);
+		const stringifiedSamples = JSON.stringify(recordingData);
 		if (!webViewState.actioned) {
-			webViewRef.current.injectJavaScript(`setupParts(${sampleStr})`);
+			webViewRef.current.injectJavaScript(`setupParts(${stringifiedSamples})`);
 			webViewRef.current.injectJavaScript('startPlayback()');
 		} else {
 			webViewRef.current.injectJavaScript('stopPlayback()');
-			// webViewRef.current.reload();
 		}
 		setWebViewState({
 			...webViewState,
@@ -123,23 +80,30 @@ export default function NowPlaying() {
 		});
 	}
 
-	// console.log(nearbyLocation);
-	const hasRecData = recData?.length !== 0;
+	/** This is to set style dynamically depending on color scheme */
 	const { themeColors } = useTheme();
-
+	const dynamicStyles = StyleSheet.create({
+		safeContainer: {
+			backgroundColor: themeColors.bgColor,
+		},
+	});
 	return (
-		<SafeAreaView
-			style={[styles.safeContainer, { backgroundColor: themeColors.bgColor }]}
-		>
-			<ScrollView contentContainerStyle={styles.container}>
-				{hasRecData ? (
+		<SafeAreaView style={[styles.safeContainer, dynamicStyles.safeContainer]}>
+			<ScrollView
+				contentContainerStyle={styles.container}
+				refreshControl={
+					<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+				}
+				horizontal={false}
+			>
+				{hasRecordingData ? (
 					<>
 						<MusicPlayer
 							nearbyLocation={nearbyLocation}
 							webViewState={webViewState}
 							handlePlay={handleActionPress}
 						/>
-						<ProfilesList />
+						<ProfileLists />
 					</>
 				) : (
 					<View style={styles.section}>
@@ -165,7 +129,7 @@ export default function NowPlaying() {
 	);
 }
 
-function PhotoProfile({ isUser }) {
+function ProfileListItem({ isUser }) {
 	const { profile } = useProfile();
 	const { themeIcons } = useTheme();
 	const userHasPhoto = 'uri' in profile.photo;
@@ -187,6 +151,16 @@ function PhotoProfile({ isUser }) {
 			<BodyText>
 				{isUser ? profile.name || 'Enter Your Name' : 'And Others...'}
 			</BodyText>
+		</View>
+	);
+}
+
+function ProfileLists() {
+	return (
+		<View style={styles.section}>
+			<TitleText>Currently At This Location: </TitleText>
+			<ProfileListItem isUser={true} />
+			<ProfileListItem />
 		</View>
 	);
 }
@@ -234,16 +208,6 @@ function MusicPlayer({ nearbyLocation, webViewState, handlePlay }) {
 					<PlayButton handlePlay={handlePlay} webViewState={webViewState} />
 				)}
 			</View>
-		</View>
-	);
-}
-
-function ProfilesList() {
-	return (
-		<View style={styles.section}>
-			<TitleText>Currently At This Location: </TitleText>
-			<PhotoProfile isUser={true} />
-			<PhotoProfile />
 		</View>
 	);
 }
