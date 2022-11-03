@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 
 // Hook
 export default function useWhyDidYouUpdate(name, props) {

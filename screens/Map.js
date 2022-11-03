@@ -36,15 +36,12 @@ export default function Map() {
 		setLocationPermission(true);
 	}, []);
 
-	/** useState to get/set user location for MapView.
-	 * It exists to avoid unnecessary re-render if using setter from
-	 * Context.
-	 */
-	const [userLocation, setUserLocation] = useState(liveLocations.userLocation);
+	/** use live location setter from Context  */
+	const setLiveLocations = useLocationDispatch();
 
 	/** useEffect to watch user's position in real time.
 	 * It also store the current user location into
-	 * userLocation state.
+	 * live location's userLocation state in Context.
 	 */
 	useEffect(() => {
 		let watchID = null;
@@ -52,11 +49,14 @@ export default function Map() {
 			watchID = Geolocation.watchPosition(
 				(position) => {
 					console.log('wID', watchID);
-					const coordinate = {
-						latitude: position.coords.latitude,
-						longitude: position.coords.longitude,
-					};
-					setUserLocation(coordinate);
+					// setUserLocation(coordinate);
+					setLiveLocations((prev) => ({
+						...prev,
+						userLocation: {
+							latitude: position.coords.latitude,
+							longitude: position.coords.longitude,
+						},
+					}));
 				},
 				(error) => {},
 			);
@@ -64,25 +64,12 @@ export default function Map() {
 		return () => {
 			watchID !== null && Geolocation.clearWatch(watchID);
 		};
-	}, [locationPermission, musicLocations]);
+	}, [locationPermission, musicLocations, setLiveLocations]);
 
-	/** use live location setter from Context  */
-	const setLiveLocations = useLocationDispatch();
-
-	/** useEffect to store user's live location from
-	 * this userLocation state to live location's userLocation
-	 * state in Context  */
-	useEffect(() => {
-		setLiveLocations((prev) => ({
-			...prev,
-			userLocation: {
-				latitude: userLocation.latitude,
-				longitude: userLocation.longitude,
-			},
-		}));
-	}, [setLiveLocations, userLocation.latitude, userLocation.longitude]);
-
-	const [nearbyLocation, setNearbyLocation] = useState();
+	/** useEffect to calculate nearest location from user.
+	 * It also store the current nearest location into
+	 * live location's nearbyLocation state in Context.
+	 */
 	useEffect(() => {
 		function calculateDistance(userCoordinate, musicCoordinates) {
 			const nearestLocations = musicCoordinates
@@ -102,22 +89,21 @@ export default function Map() {
 			return nearestLocations.shift();
 		}
 
-		// if (userLocation === null) return;
-		if (userLocation.latitude && userLocation.longitude && musicLocations) {
-			const nl = calculateDistance(userLocation, musicLocations);
-			setNearbyLocation(nl);
-		}
-	}, [musicLocations, userLocation]);
-
-	useEffect(() => {
-		if (nearbyLocation?.distance) {
-			// console.log('setNearby: ');
+		if (
+			liveLocations.userLocation.latitude &&
+			liveLocations.userLocation.longitude &&
+			musicLocations
+		) {
+			const currentNearestLocation = calculateDistance(
+				liveLocations.userLocation,
+				musicLocations,
+			);
 			setLiveLocations((prev) => ({
 				...prev,
-				nearbyLocation: nearbyLocation,
+				nearbyLocation: currentNearestLocation,
 			}));
 		}
-	}, [setLiveLocations, nearbyLocation]);
+	}, [liveLocations.userLocation, musicLocations, setLiveLocations]);
 
 	/** Retrieve current device's color scheme from Context */
 	const { isDarkMode } = useTheme();
@@ -135,7 +121,7 @@ export default function Map() {
 		<>
 			<MapView
 				camera={{
-					center: userLocation,
+					center: liveLocations?.userLocation,
 					pitch: 0, // Angle of 3D map
 					heading: 0, // Compass direction
 					altitude: 3000, // Zoom level for iOS

@@ -112,7 +112,7 @@ export default function StoreProvider({ children }) {
 		}
 	}, [liveLocations.nearbyLocation, samples, samplesToLocations]);
 
-	useWhyDidYouUpdate('Context', { liveLocations });
+	useWhyDidYouUpdate('Context', { ...liveLocations });
 
 	/** Detect device's color scheme. */
 	const colorScheme = useColorScheme();
