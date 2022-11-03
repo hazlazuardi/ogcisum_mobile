@@ -57,13 +57,10 @@ export default function StoreProvider({ children }) {
 	}, []);
 
 	/** This is to fetch samples using custom hooks from API and store it into a state. */
-	const { status: statusSamples, value: samples } = useFetch(
-		samplesFetcher,
-		true,
-	);
+	const { value: samples } = useFetch(samplesFetcher, true);
 
 	/** This is to fetch samples_to_locations using custom hooks from API and store it into a state. */
-	const { status: statusSTL, value: samplesToLocations } = useFetch(
+	const { value: samplesToLocations } = useFetch(
 		samplesToLocationsFetcher,
 		true,
 	);
@@ -108,6 +105,9 @@ export default function StoreProvider({ children }) {
 			if (rec?.length > 0) {
 				setRecordingData(rec);
 				setHasRecordingData(true);
+			} else {
+				setRecordingData([]);
+				setHasRecordingData(false);
 			}
 		}
 	}, [liveLocations.nearbyLocation, samples, samplesToLocations]);
@@ -125,28 +125,12 @@ export default function StoreProvider({ children }) {
 	return (
 		<ThemeContext.Provider value={{ isDarkMode, themeColors, themeIcons }}>
 			<ProfileContext.Provider value={{ profile, dispatchProfile }}>
-				<LocationContext.Provider
-					value={{
-						liveLocations,
-						musicLocations: musicLocations,
-					}}
-				>
+				<LocationContext.Provider value={{ liveLocations, musicLocations }}>
 					<LocationDispatchContext.Provider value={setLiveLocations}>
 						<SamplesContext.Provider
-							value={{
-								samples: samples?.samples,
-								statusSamples,
-								hasRecordingData,
-							}}
+							value={{ recordingData, hasRecordingData }}
 						>
-							<SamplesToLocationsContext.Provider
-								value={{
-									samplesToLocations: samplesToLocations?.samples_to_locations,
-									statusSTL,
-								}}
-							>
-								{children}
-							</SamplesToLocationsContext.Provider>
+							{children}
 						</SamplesContext.Provider>
 					</LocationDispatchContext.Provider>
 				</LocationContext.Provider>
