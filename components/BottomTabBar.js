@@ -109,12 +109,11 @@ function TabIcon({ focused, icon, isLogo, size }) {
 							},
 						]}
 					/>
-					{liveLocations.nearbyLocation.distance?.nearbyLocation &&
-						hasRecordingData && (
-							<View>
-								<Text style={styles.tabLogoText}>There's Music Nearby</Text>
-							</View>
-						)}
+					{liveLocations.nearbyLocation.distance?.isNear && hasRecordingData && (
+						<View>
+							<Text style={styles.tabLogoText}>There's Music Nearby</Text>
+						</View>
+					)}
 				</View>
 			);
 		}

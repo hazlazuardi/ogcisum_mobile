@@ -1,11 +1,5 @@
 // Import React Native
-import React, {
-	useState,
-	useEffect,
-	useMemo,
-	useCallback,
-	useRef,
-} from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { StyleSheet, LogBox } from 'react-native';
 
 // Import React Native Maps
@@ -28,77 +22,41 @@ export default function Map() {
 		'Sending `geolocationDidChange` with no listeners registered.',
 	]);
 
-	/** retrieve music locations from Context */
+	/** retrieve live location and music locations from Context */
 	const { liveLocations, musicLocations } = useLocation();
 
-	/** set up initial map state data for initial render */
-	const initialMapState = {
-		locationPermission: false,
-		locations: musicLocations,
-		userLocation: {
-			latitude: -27.498248114899546,
-			longitude: 153.01788081097033,
-			// Starts at "Indooroopilly Shopping Centre"
-		},
-		nearbyLocation: {},
-	};
-	const [mapState, setMapState] = useState(initialMapState);
+	/** useState to get/set location permission */
+	const [locationPermission, setLocationPermission] = useState(false);
 
 	/**
 	 * Run location permissions check after render due to side effects
 	 * iOS relies on ios/mapApp/Info.plist
 	 */
 	useEffect(() => {
-		setMapState({
-			...mapState,
-			locationPermission: true,
-		});
-		// eslint-disable-next-line react-hooks/exhaustive-deps
+		setLocationPermission(true);
 	}, []);
 
-	/** Memoize Map State to avoid infinite re-render*/
-	const memoizedMapState = useMemo(() => {
-		return {
-			userLocation: mapState.userLocation,
-			locations: mapState.locations,
-			nearbyLocation: mapState.nearbyLocation,
-			locationPermission: mapState.locationPermission,
-		};
-	}, [
-		mapState.userLocation,
-		mapState.locations,
-		mapState.nearbyLocation,
-		mapState.locationPermission,
-	]);
-
-	/**
-	 * This is a function to calculate distance between user location and music locations,
-	 * and to find the nearest music location
-	 * @param {Object} userCoordinate — Objects containing user's location coordinate
-	 * @param {Array}  musicCoordinates — Array of Objects containing musics location coordinates
-	 * @returns Object containing the nearest music location coordinate
+	/** useState to get/set user location for MapView.
+	 * It exists to avoid unnecessary re-render if using setter from
+	 * Context.
 	 */
+	const [userLocation, setUserLocation] = useState(liveLocations.userLocation);
 
-	/** Retrieve dispatch location reducer function from Context  */
-	// const dispatchLocations = useLocationDispatch();
-
-	// const refTmpUserLoc = useRef(tmpUserLoc);
-	const [tmpUserLoc, setTmpUserLoc] = useState({
-		latitude: null,
-		longitude: null,
-	});
-	/** useEffect to watch user's position in real time */
+	/** useEffect to watch user's position in real time.
+	 * It also store the current user location into
+	 * userLocation state.
+	 */
 	useEffect(() => {
 		let watchID = null;
-		if (musicLocations && memoizedMapState.locationPermission === true) {
+		if (musicLocations && locationPermission === true) {
 			watchID = Geolocation.watchPosition(
 				(position) => {
 					console.log('wID', watchID);
-					const userLocation = {
+					const coordinate = {
 						latitude: position.coords.latitude,
 						longitude: position.coords.longitude,
 					};
-					setTmpUserLoc(userLocation);
+					setUserLocation(coordinate);
 				},
 				(error) => {},
 			);
@@ -106,34 +64,25 @@ export default function Map() {
 		return () => {
 			watchID !== null && Geolocation.clearWatch(watchID);
 		};
-	}, [memoizedMapState.locationPermission, musicLocations]);
+	}, [locationPermission, musicLocations]);
 
-	// useEffect(() => {
-	// 	console.log('tmpUserLoc: ', tmpUserLoc);
-	// }, [tmpUserLoc]);
-
+	/** use live location setter from Context  */
 	const setLiveLocations = useLocationDispatch();
+
+	/** useEffect to store user's live location from
+	 * this userLocation state to live location's userLocation
+	 * state in Context  */
 	useEffect(() => {
-		console.log('setLocations: ');
 		setLiveLocations((prev) => ({
 			...prev,
 			userLocation: {
-				latitude: tmpUserLoc.latitude,
-				longitude: tmpUserLoc.longitude,
+				latitude: userLocation.latitude,
+				longitude: userLocation.longitude,
 			},
 		}));
-	}, [setLiveLocations, tmpUserLoc.latitude, tmpUserLoc.longitude]);
+	}, [setLiveLocations, userLocation.latitude, userLocation.longitude]);
 
-	// useEffect(() => {
-	// 	console.log('live locations: ', liveLocations);
-	// }, [liveLocations]);
-
-	// useEffect(() => {
-	// 	console.log('musicLocations: ', musicLocations);
-	// }, [musicLocations]);
-
-	// const tmpMsl = { ...musicLocations };
-	const [tmpNearbyLoc, setTmpNearbyLoc] = useState();
+	const [nearbyLocation, setNearbyLocation] = useState();
 	useEffect(() => {
 		function calculateDistance(userCoordinate, musicCoordinates) {
 			const nearestLocations = musicCoordinates
@@ -141,7 +90,7 @@ export default function Map() {
 					const metres = getDistance(userCoordinate, location.coordinates);
 					location.distance = {
 						metres: metres,
-						nearbyLocation: metres <= 100 ? true : false,
+						isNear: metres <= 100 ? true : false,
 					};
 					return location;
 				})
@@ -153,30 +102,22 @@ export default function Map() {
 			return nearestLocations.shift();
 		}
 
-		if (tmpUserLoc === null) return;
-		console.log('musicLoc: ', musicLocations);
-		console.log('tmpLocCal: ', tmpUserLoc);
-		if (tmpUserLoc.latitude && tmpUserLoc.longitude && musicLocations) {
-			// console.log('nearbyLoc: ', calculateDistance(tmpUserLoc, musicLocations));
-			const nl = calculateDistance(tmpUserLoc, musicLocations);
-			// console.log('nearby: ', typeof nl);
-			setTmpNearbyLoc(nl);
+		// if (userLocation === null) return;
+		if (userLocation.latitude && userLocation.longitude && musicLocations) {
+			const nl = calculateDistance(userLocation, musicLocations);
+			setNearbyLocation(nl);
 		}
-	}, [musicLocations, tmpUserLoc]);
-
-	// useEffect(() => {
-	// 	console.log('tmpNear: ', tmpNearbyLoc);
-	// }, [tmpNearbyLoc]);
+	}, [musicLocations, userLocation]);
 
 	useEffect(() => {
-		if (tmpNearbyLoc?.distance) {
-			console.log('setNearby: ');
+		if (nearbyLocation?.distance) {
+			// console.log('setNearby: ');
 			setLiveLocations((prev) => ({
 				...prev,
-				nearbyLocation: tmpNearbyLoc,
+				nearbyLocation: nearbyLocation,
 			}));
 		}
-	}, [setLiveLocations, tmpNearbyLoc]);
+	}, [setLiveLocations, nearbyLocation]);
 
 	/** Retrieve current device's color scheme from Context */
 	const { isDarkMode } = useTheme();
@@ -194,13 +135,13 @@ export default function Map() {
 		<>
 			<MapView
 				camera={{
-					center: mapState.userLocation,
+					center: userLocation,
 					pitch: 0, // Angle of 3D map
 					heading: 0, // Compass direction
 					altitude: 3000, // Zoom level for iOS
 					zoom: 15, // Zoom level For Android
 				}}
-				showsUserLocation={mapState.locationPermission}
+				showsUserLocation={locationPermission}
 				style={styles.container}
 			>
 				{musicLocations &&

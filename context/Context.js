@@ -32,11 +32,6 @@ export default function StoreProvider({ children }) {
 	/** Reducer to store live locations and update it using dispatch. */
 	const [profile, dispatchProfile] = useReducer(profileReducer, initialProfile);
 
-	/** Reducer to store live locations and update it using dispatch. */
-	// const [liveLocations, dispatchLiveLocations] = useReducer(
-	// 	locationsReducer,
-	// 	initialLiveLocations,
-	// );
 	const [liveLocations, setLiveLocations] = useState(initialLiveLocations);
 
 	/** This is to fetch locations from API and store it into a state. */
@@ -73,17 +68,13 @@ export default function StoreProvider({ children }) {
 		true,
 	);
 
-	// useEffect(() => {
-	// 	console.log('ctxloc: ', liveLocations);
-	// }, [liveLocations]);
-
 	const [recordingData, setRecordingData] = useState(null);
 	const [hasRecordingData, setHasRecordingData] = useState(false);
 	useEffect(() => {
 		function getSamplesFromLocations(nearLoc, allSam, allStl) {
-			console.log('nearf: ', typeof nearLoc.id);
-			console.log('allSam: ', allSam);
-			console.log('allStl: ', allStl);
+			// console.log('nearf: ', typeof nearLoc.id);
+			// console.log('allSam: ', allSam);
+			// console.log('allStl: ', allStl);
 			// Filter samples to location by location_id
 			const filteredStl = allStl
 				.filter((stl) => stl.locations_id === nearLoc.id)
@@ -113,7 +104,7 @@ export default function StoreProvider({ children }) {
 			const rec = sams?.map((sample) => {
 				return { type: sample.type, recording_data: sample.recording_data };
 			});
-			console.log('rec: ', rec);
+			// console.log('rec: ', rec);
 			if (rec?.length > 0) {
 				setRecordingData(rec);
 				setHasRecordingData(true);
@@ -121,7 +112,7 @@ export default function StoreProvider({ children }) {
 		}
 	}, [liveLocations.nearbyLocation, samples, samplesToLocations]);
 
-	useWhyDidYouUpdate('Context', { recordingData });
+	useWhyDidYouUpdate('Context', { liveLocations });
 
 	/** Detect device's color scheme. */
 	const colorScheme = useColorScheme();
@@ -194,22 +185,6 @@ export function useTheme() {
 	return useContext(ThemeContext);
 }
 
-/** Function as reducer for live locations. */
-// function locationsReducer(state, action) {
-// 	switch (action.type) {
-// 		case 'updated': {
-// 			return {
-// 				...state,
-// 				user: action.user,
-// 				nearbyLocation: action.nearbyLocation,
-// 			};
-// 		}
-// 		default: {
-// 			throw Error(`Unknown action: ${action.type}`);
-// 		}
-// 	}
-// }
-
 /** Function as reducer for profile. */
 function profileReducer(state, action) {
 	switch (action.type) {
@@ -233,8 +208,10 @@ function profileReducer(state, action) {
 
 const initialLiveLocations = {
 	nearbyLocation: {},
-	nearbySamples: [],
-	user: {},
+	userLocation: {
+		latitude: -27.498248114899546,
+		longitude: 153.01788081097033,
+	},
 };
 
 const initialProfile = {
