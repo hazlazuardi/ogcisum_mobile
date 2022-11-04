@@ -10,7 +10,10 @@ import Profile from '../screens/Profile';
 import { useLocation, useSamples } from '../context/Context';
 import LinearGradient from 'react-native-linear-gradient';
 
+/** Initiate BottomTabNavigator */
 const Tab = createBottomTabNavigator();
+
+/** This is main component for Bottom Tab Bar */
 export default function BottomTabBar({ navigation }) {
 	return (
 		<Tab.Navigator
@@ -49,6 +52,7 @@ export default function BottomTabBar({ navigation }) {
 	);
 }
 
+/** This function specify the tab options for each distinct tab */
 function tabOptions(icon, isLogo) {
 	return {
 		tabBarIcon: ({ focused, size }) => (
@@ -58,12 +62,19 @@ function tabOptions(icon, isLogo) {
 		tabBarStyle: [styles.tabContainer],
 	};
 }
-function TabIcon({ focused, icon, isLogo, size }) {
+
+/** This is a Tab Icon component to be passed to tabBarIcon. */
+function TabIcon({ focused, icon, isLogo }) {
+	/** Retrieve live locations from Context. */
 	const { liveLocations } = useLocation();
+
+	/** Retrieve recording data flag from Context. */
 	const { hasRecordingData } = useSamples();
+
 	const isNearAndHasRecordingData =
 		liveLocations.nearbyLocation.distance?.isNear && hasRecordingData;
 
+	/** Dynamic StyleSheet to style with conditions in mind. */
 	const dynamicStyles = StyleSheet.create({
 		tabIconContainer: {
 			backgroundColor: focused && colors.blackColorTranslucentLess,
@@ -72,12 +83,11 @@ function TabIcon({ focused, icon, isLogo, size }) {
 			tintColor: focused ? colors.white : colors.whiteColorTranslucentLess,
 		},
 
-		tabLogoContainer: {
-			backgroundColor: focused && colors.blackColorTranslucentLess,
-		},
 		tabLogoImage: {
 			flex: isNearAndHasRecordingData ? 0.8 : 1,
-			width: '100%',
+		},
+		tabLogoImageContainer: {
+			paddingBottom: isNearAndHasRecordingData && sizes.tabPadding / 2,
 		},
 	});
 	if (!isLogo) {
@@ -92,27 +102,26 @@ function TabIcon({ focused, icon, isLogo, size }) {
 		);
 	}
 	if (isLogo) {
-		if (typeof liveLocations !== 'undefined') {
-			return (
-				<View style={[styles.tabLogoContainer, dynamicStyles.tabLogoContainer]}>
-					<View style={[styles.tabLogoImageContainer]}>
-						<Image
-							source={icon}
-							resizeMode="contain"
-							style={dynamicStyles.tabLogoImage}
-						/>
-					</View>
-					{isNearAndHasRecordingData && (
-						<View>
-							<Text style={styles.tabLogoText}>There's Music Nearby</Text>
-						</View>
-					)}
+		return (
+			<View style={[styles.tabLogoContainer, dynamicStyles.tabIconContainer]}>
+				<View style={[styles.tabLogoImageContainer]}>
+					<Image
+						source={icon}
+						resizeMode="contain"
+						style={dynamicStyles.tabLogoImage}
+					/>
 				</View>
-			);
-		}
+				{isNearAndHasRecordingData && (
+					<View>
+						<Text style={styles.tabLogoText}>There's Music Nearby</Text>
+					</View>
+				)}
+			</View>
+		);
 	}
 }
 
+/** StyleSheet as a wider scope to reduce re-render. */
 const styles = StyleSheet.create({
 	tabContainer: {
 		height: sizes.bottomTabBarHeight,
@@ -122,7 +131,6 @@ const styles = StyleSheet.create({
 		height: '100%',
 	},
 	tabLogoContainer: {
-		display: 'flex',
 		justifyContent: 'space-around',
 		alignItems: 'center',
 		width: '120%',
@@ -132,7 +140,6 @@ const styles = StyleSheet.create({
 	tabLogoImageContainer: {
 		width: '100%',
 		flex: 1,
-		paddingBottom: sizes.tabPadding / 2,
 		paddingHorizontal: 4,
 		alignItems: 'center',
 		justifyContent: 'center',
