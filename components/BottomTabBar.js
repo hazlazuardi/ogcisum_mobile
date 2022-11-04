@@ -58,32 +58,35 @@ function tabOptions(icon, isLogo) {
 		tabBarStyle: [styles.tabContainer],
 	};
 }
-
 function TabIcon({ focused, icon, isLogo, size }) {
 	const { liveLocations } = useLocation();
 	const { hasRecordingData } = useSamples();
-	// console.log(location);
+	const isNearAndHasRecordingData =
+		liveLocations.nearbyLocation.distance?.isNear && hasRecordingData;
+
+	const dynamicStyles = StyleSheet.create({
+		tabIconContainer: {
+			backgroundColor: focused && colors.blackColorTranslucentLess,
+		},
+		tabIconImage: {
+			tintColor: focused ? colors.white : colors.whiteColorTranslucentLess,
+		},
+
+		tabLogoContainer: {
+			backgroundColor: focused && colors.blackColorTranslucentLess,
+		},
+		tabLogoImage: {
+			flex: isNearAndHasRecordingData ? 0.8 : 1,
+			width: '100%',
+		},
+	});
 	if (!isLogo) {
 		return (
-			<View
-				style={[
-					styles.tabIconContainer,
-					{
-						backgroundColor: focused && colors.blackColorTranslucentLess,
-					},
-				]}
-			>
+			<View style={[styles.tabIconContainer, dynamicStyles.tabIconContainer]}>
 				<Image
 					source={icon}
 					resizeMode="contain"
-					style={[
-						styles.tabIconImage,
-						{
-							tintColor: focused
-								? colors.white
-								: colors.whiteColorTranslucentLess,
-						},
-					]}
+					style={[styles.tabIconImage, dynamicStyles.tabIconImage]}
 				/>
 			</View>
 		);
@@ -91,25 +94,15 @@ function TabIcon({ focused, icon, isLogo, size }) {
 	if (isLogo) {
 		if (typeof liveLocations !== 'undefined') {
 			return (
-				<View
-					style={[
-						styles.tabLogoContainer,
-						{
-							backgroundColor: focused && colors.blackColorTranslucentLess,
-						},
-					]}
-				>
-					<Image
-						source={icon}
-						resizeMode="contain"
-						style={[
-							styles.tabLogoImage,
-							{
-								tintColor: focused ? colors.white : colors.white,
-							},
-						]}
-					/>
-					{liveLocations.nearbyLocation.distance?.isNear && hasRecordingData && (
+				<View style={[styles.tabLogoContainer, dynamicStyles.tabLogoContainer]}>
+					<View style={[styles.tabLogoImageContainer]}>
+						<Image
+							source={icon}
+							resizeMode="contain"
+							style={dynamicStyles.tabLogoImage}
+						/>
+					</View>
+					{isNearAndHasRecordingData && (
 						<View>
 							<Text style={styles.tabLogoText}>There's Music Nearby</Text>
 						</View>
@@ -121,37 +114,45 @@ function TabIcon({ focused, icon, isLogo, size }) {
 }
 
 const styles = StyleSheet.create({
-	tabIconContainer: {
-		alignItems: 'center',
-		justifyContent: 'center',
+	tabContainer: {
+		height: sizes.bottomTabBarHeight,
+		paddingBottom: sizes.padding,
+	},
+	linearGradient: {
 		height: '100%',
-		padding: 20,
-
-		// width: '100%',
 	},
-	tabIconImage: {
-		width: 30,
-		height: 30,
-	},
-	tabLogoImage: {
-		height: 30,
-		width: 100,
-	},
-	tabContainer: {},
 	tabLogoContainer: {
 		display: 'flex',
-		justifyContent: 'center',
+		justifyContent: 'space-around',
 		alignItems: 'center',
 		width: '120%',
-		padding: 10,
-		height: '100%',
+		flex: 1,
+		padding: 8,
+	},
+	tabLogoImageContainer: {
+		width: '100%',
+		flex: 1,
+		paddingBottom: sizes.tabPadding / 2,
+		paddingHorizontal: 4,
+		alignItems: 'center',
+		justifyContent: 'center',
 	},
 	tabLogoText: {
 		color: colors.white,
 		textAlign: 'center',
 		fontSize: sizes.body5,
 	},
-	linearGradient: {
+	tabIconContainer: {
+		alignItems: 'center',
+		justifyContent: 'center',
+		width: '90%',
 		height: '100%',
+		padding: sizes.padding,
+		flex: 1,
+		aspectRatio: 1,
+	},
+	tabIconImage: {
+		width: 30,
+		height: sizes.tabIcon,
 	},
 });

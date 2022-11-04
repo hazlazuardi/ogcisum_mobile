@@ -92,9 +92,16 @@ export default function NowPlaying() {
 			<ScrollView
 				contentContainerStyle={styles.container}
 				refreshControl={
-					<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+					<RefreshControl
+						refreshing={refreshing}
+						onRefresh={onRefresh}
+						tintColor={themeColors.fgColor}
+						title={'Fetching samples...'}
+						titleColor={themeColors.fgColor}
+					/>
 				}
 				horizontal={false}
+				showsVerticalScrollIndicator={false}
 			>
 				{hasRecordingData ? (
 					<>

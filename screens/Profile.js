@@ -21,57 +21,9 @@ import { colors, sizes } from '../data/theme';
 
 const { width, height } = Dimensions.get('window');
 
-const styles = StyleSheet.create({
-	container: {
-		padding: 20,
-		justifyContent: 'space-around',
-	},
-	photoFullView: {
-		overflow: 'hidden',
-		borderWidth: 4,
-		borderRadius: 10,
-		borderColor: colors.light.fgColorLighter,
-		height: height / 2,
-		flex: 1,
-		display: 'flex',
-		justifyContent: 'flex-end',
-		alignItems: 'center',
-		paddingBottom: sizes.padding,
-		marginBottom: sizes.padding,
-	},
-	photoEmptyView: {
-		borderWidth: 3,
-		borderRadius: 10,
-		borderColor: '#999',
-		borderStyle: 'dashed',
-		height: height / 2,
-		display: 'flex',
-		justifyContent: 'center',
-		alignItems: 'center',
-		marginBottom: sizes.padding,
-	},
-	buttonView: {
-		flexDirection: 'row',
-		justifyContent: 'space-around',
-	},
-	inputContainer: {
-		flex: 1,
-	},
-	header: {
-		fontSize: sizes.body1,
-		fontWeight: 'bold',
-	},
-	subtitle: {
-		fontSize: sizes.body3,
-		color: colors.light.fgColor,
-		marginBottom: sizes.padding,
-	},
-});
-
 export default function Profile() {
 	const { profile, dispatchProfile: dispatch } = useProfile();
 
-	// console.log('ctx: ', profile);
 	async function handleChangePress() {
 		await launchImageLibrary()
 			.then((result) => {
@@ -195,3 +147,50 @@ function Photo({ photo, children, onPress }) {
 		);
 	}
 }
+
+const styles = StyleSheet.create({
+	container: {
+		padding: 20,
+		justifyContent: 'space-around',
+	},
+	photoFullView: {
+		overflow: 'hidden',
+		borderWidth: 4,
+		borderRadius: 10,
+		borderColor: colors.light.fgColorLighter,
+		height: height / 2,
+		flex: 1,
+		display: 'flex',
+		justifyContent: 'flex-end',
+		alignItems: 'center',
+		paddingBottom: sizes.padding,
+		marginBottom: sizes.padding,
+	},
+	photoEmptyView: {
+		borderWidth: 3,
+		borderRadius: 10,
+		borderColor: '#999',
+		borderStyle: 'dashed',
+		height: height / 2,
+		display: 'flex',
+		justifyContent: 'center',
+		alignItems: 'center',
+		marginBottom: sizes.padding,
+	},
+	buttonView: {
+		flexDirection: 'row',
+		justifyContent: 'space-around',
+	},
+	inputContainer: {
+		flex: 1,
+	},
+	header: {
+		fontSize: sizes.body1,
+		fontWeight: 'bold',
+	},
+	subtitle: {
+		fontSize: sizes.body3,
+		color: colors.light.fgColor,
+		marginBottom: sizes.padding,
+	},
+});
