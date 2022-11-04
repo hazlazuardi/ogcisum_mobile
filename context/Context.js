@@ -1,5 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import { createContext, useContext, useReducer } from 'react';
+import React, {
+	useEffect,
+	useState,
+	createContext,
+	useContext,
+	useReducer,
+} from 'react';
 import { useColorScheme } from 'react-native';
 
 import {
@@ -21,12 +26,14 @@ const ProfileContext = createContext(null);
 const ThemeContext = createContext(null);
 
 /** Function as async function for custom hook useFetch. */
-const samplesFetcher = async () =>
-	await fetch(SAMPLES_URL).then((res) => res.json());
+const samplesFetcher = async () => {
+	return fetch(SAMPLES_URL).then((res) => res.json());
+};
 
 /** Function as async function for custom hook useFetch. */
-const samplesToLocationsFetcher = async () =>
-	await fetch(SAMPLES_TO_LOCATIONS_URL).then((res) => res.json());
+const samplesToLocationsFetcher = async () => {
+	return fetch(SAMPLES_TO_LOCATIONS_URL).then((res) => res.json());
+};
 
 export default function StoreProvider({ children }) {
 	/** Reducer to store live locations and update it using dispatch. */
@@ -102,7 +109,6 @@ export default function StoreProvider({ children }) {
 			const rec = sams?.map((sample) => {
 				return { type: sample.type, recording_data: sample.recording_data };
 			});
-			// console.log('rec: ', rec);
 			if (rec?.length > 0) {
 				setRecordingData(rec);
 				setHasRecordingData(true);

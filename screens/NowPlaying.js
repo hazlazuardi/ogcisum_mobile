@@ -119,7 +119,7 @@ export default function NowPlaying() {
 					</View>
 				)}
 			</ScrollView>
-			<View style={false && styles.webViewContainer}>
+			<View>
 				<WebView
 					ref={(ref) => (webViewRef.current = ref)}
 					originWhitelist={['*']}

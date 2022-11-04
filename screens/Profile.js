@@ -4,7 +4,6 @@ import {
 	SafeAreaView,
 	ScrollView,
 	View,
-	Dimensions,
 	Text,
 	StyleSheet,
 	TextInput,
@@ -19,11 +18,21 @@ import ButtonIOS from '../components/ButtonIOS';
 import { useProfile, useTheme } from '../context/Context';
 import { colors, sizes } from '../data/theme';
 
-const { width, height } = Dimensions.get('window');
-
+/**
+ * Main React component for Profile page
+ * @return {JSX.Element} React component for Profile page
+ */
 export default function Profile() {
 	const { profile, dispatchProfile: dispatch } = useProfile();
 
+	/** Flag to check if photo exists in the Context */
+	const hasPhoto = typeof profile.photo.uri !== 'undefined';
+
+	/**
+	 * Function for onPress function on ButtonIOS
+	 *
+	 * @callback handleChangePress
+	 * */
 	async function handleChangePress() {
 		await launchImageLibrary()
 			.then((result) => {
@@ -37,82 +46,81 @@ export default function Profile() {
 			.catch((e) => console.log(e));
 	}
 
-	const hasPhoto = typeof profile.photo.uri !== 'undefined';
+	/** Retrieve theme colors from Context */
 	const { themeColors } = useTheme();
+
+	/** StyleSheet that uses dynamic conditions */
+	const dynamicStyles = StyleSheet.create({
+		themeTextColor: { color: themeColors.headerTextColor },
+	});
+
+	/** Main React Component for Profile page */
 	return (
-		<KeyboardAvoid>
-			{/* <SafeAreaView style={{ backgroundColor: themeColors.bgColor }}> */}
+		<KeyboardView>
 			<View>
-				<Text style={[styles.header, { color: themeColors.headerTextColor }]}>
+				<Text style={[styles.header, dynamicStyles.themeTextColor]}>
 					Edit Profile
 				</Text>
-				<Text style={[styles.subtitle, { color: themeColors.headerTextColor }]}>
+				<Text style={[styles.subtitle, dynamicStyles.themeTextColor]}>
 					Mirror, Mirror On The Wall...
 				</Text>
 			</View>
-			{/* <Photo photo={profile.photo} /> */}
 			<Photo photo={profile.photo} onPress={handleChangePress}>
 				<ButtonIOS
 					onPress={handleChangePress}
 					text={hasPhoto ? 'Change Photo' : 'Add Photo'}
 				/>
 			</Photo>
-			{/* </SafeAreaView> */}
-		</KeyboardAvoid>
+		</KeyboardView>
 	);
 }
 
-function KeyboardAvoid({ children }) {
-	const dynamicStyles = StyleSheet.create({
-		container: {
-			flex: 1,
-		},
-		inner: {
-			padding: 24,
-			flex: 1,
-			justifyContent: 'space-around',
-		},
-		header: {
-			fontSize: 36,
-			marginBottom: 48,
-		},
-		textInput: {
-			height: 40,
-			borderRadius: sizes.radius,
-			textAlign: 'center',
-			// borderColor: '#000000',
-			// borderBottomWidth: 1,
-			// marginBottom: 36,
-			color: colors.white,
-		},
-	});
+/**
+ * React component for Keyboard by wrapping the children and Text Input
+ * obtain Profile name
+ * @param {JSX.Element} children - React component(s) that are wrapped by this component
+ * @return {JSX.Element} React component for Keyboard and TextInput
+ */
+function KeyboardView({ children }) {
 	const { dispatchProfile } = useProfile();
 	function handleChange(value) {
 		dispatchProfile({ type: 'setName', name: value });
 	}
 	const { themeColors } = useTheme();
+
+	const dynamicStyles = StyleSheet.create({
+		keyboardContainer: {
+			flex: 1,
+		},
+		keyboardChildren: {
+			padding: 24,
+			flex: 1,
+			justifyContent: 'space-around',
+		},
+		textInput: {
+			height: 40,
+			borderRadius: sizes.radius,
+			textAlign: 'center',
+			backgroundColor: themeColors.fgColorLighter,
+			color: themeColors.fgColor,
+		},
+	});
 	return (
 		<SafeAreaView
 			style={[
-				dynamicStyles.container,
+				dynamicStyles.keyboardContainer,
 				{ backgroundColor: themeColors.bgColor },
 			]}
 		>
 			<KeyboardAvoidingView behavior={'position'}>
 				<ScrollView showsVerticalScrollIndicator={false}>
 					<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-						<View style={dynamicStyles.inner}>
+						<View style={dynamicStyles.keyboardChildren}>
 							{children}
 							<TextInput
 								placeholder="Enter Your Name"
 								placeholderTextColor={themeColors.fgColor}
-								style={[
-									dynamicStyles.textInput,
-									{
-										backgroundColor: themeColors.fgColorLighter,
-										color: themeColors.fgColor,
-									},
-								]}
+								style={dynamicStyles.textInput}
 								onChangeText={(value) => handleChange(value)}
 							/>
 						</View>
@@ -123,6 +131,13 @@ function KeyboardAvoid({ children }) {
 	);
 }
 
+/**
+ * Main React component for Profile page
+ * @param {Object} photo - Object containing Photo data
+ * @param {JSX.Element} children - React component(s) that are wrapped by this component
+ * @param {handleChangePress} onPress - A callback to handle onPress event
+ * @return {JSX.Element} React component for Profile page
+ */
 function Photo({ photo, children, onPress }) {
 	const hasPhoto = typeof photo.uri !== 'undefined';
 	if (hasPhoto) {
@@ -133,29 +148,21 @@ function Photo({ photo, children, onPress }) {
 					resizeMode="cover"
 					source={{
 						uri: photo.uri,
-						width: width,
-						height: height / 2,
 					}}
 				>
 					{children}
 				</ImageBackground>
 			</TouchableWithoutFeedback>
 		);
-	} else {
-		// return <View style={styles.photoEmptyView} />;
-		return (
-			<TouchableWithoutFeedback onPress={onPress}>
-				<View style={styles.photoEmptyView}>{children}</View>
-			</TouchableWithoutFeedback>
-		);
 	}
+	return (
+		<TouchableWithoutFeedback onPress={onPress}>
+			<View style={styles.photoEmptyView}>{children}</View>
+		</TouchableWithoutFeedback>
+	);
 }
 
 const styles = StyleSheet.create({
-	container: {
-		padding: 20,
-		justifyContent: 'space-around',
-	},
 	photoFullView: {
 		overflow: 'hidden',
 		borderWidth: 4,
@@ -181,13 +188,6 @@ const styles = StyleSheet.create({
 		justifyContent: 'center',
 		alignItems: 'center',
 		marginBottom: sizes.padding,
-	},
-	buttonView: {
-		flexDirection: 'row',
-		justifyContent: 'space-around',
-	},
-	inputContainer: {
-		flex: 1,
 	},
 	header: {
 		fontSize: sizes.body1,

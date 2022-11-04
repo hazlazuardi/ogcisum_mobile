@@ -49,7 +49,6 @@ export default function Map() {
 			watchID = Geolocation.watchPosition(
 				(position) => {
 					console.log('wID', watchID);
-					// setUserLocation(coordinate);
 					setLiveLocations((prev) => ({
 						...prev,
 						userLocation: {
