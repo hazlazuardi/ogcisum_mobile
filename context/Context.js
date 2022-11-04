@@ -40,6 +40,7 @@ export default function StoreProvider({ children }) {
 	const [profile, dispatchProfile] = useReducer(profileReducer, initialProfile);
 
 	const [liveLocations, setLiveLocations] = useState(initialLiveLocations);
+	const { nearbyLocation } = liveLocations;
 
 	/** This is to fetch locations from API and store it into a state. */
 	const [musicLocations, setMusicLocations] = useState();
@@ -64,60 +65,55 @@ export default function StoreProvider({ children }) {
 	}, []);
 
 	/** This is to fetch samples using custom hooks from API and store it into a state. */
-	const { value: samples } = useFetch(samplesFetcher, true);
-
+	const { value: samplesResponse } = useFetch(samplesFetcher, true);
+	const samples = samplesResponse?.samples;
 	/** This is to fetch samples_to_locations using custom hooks from API and store it into a state. */
 	const {
-		value: samplesToLocations,
+		value: samplesToLocationsResponse,
 		execute: fetchSTL,
 		status: statusSTL,
 	} = useFetch(samplesToLocationsFetcher, true);
+	const samplesToLocations = samplesToLocationsResponse?.samples_to_locations;
 
 	const [recordingData, setRecordingData] = useState(null);
 	const [hasRecordingData, setHasRecordingData] = useState(false);
 	useEffect(() => {
 		function getSamplesFromLocations(nearLoc, allSam, allStl) {
-			// console.log('nearf: ', typeof nearLoc.id);
-			// console.log('allSam: ', allSam);
-			// console.log('allStl: ', allStl);
-			// Filter samples to location by location_id
-			const filteredStl = allStl
+			const filteredSamplesToLocations = allStl
 				.filter((stl) => stl.locations_id === nearLoc.id)
-				.map((stl) => stl);
-			// Make a list of samples_id to filter samples
-			const sidRef = filteredStl.map((stl) => stl.samples_id);
-			//  Filter samples by samples_id
-			const filteredSam = allSam
-				.filter((sam) => sidRef.includes(sam.id))
+				.map((stl) => stl)
+				.map((stl) => stl.samples_id);
+			const filteredSamples = allSam
+				.filter((sam) => filteredSamplesToLocations.includes(sam.id))
 				.map((sam) => {
-					const parsedRec = {
+					const parsedRecordingData = {
 						...sam,
 						recording_data: JSON.parse(sam.recording_data),
 					};
-					return parsedRec;
+					return parsedRecordingData;
 				});
-			return filteredSam;
+			return filteredSamples;
 		}
 
-		if (liveLocations.nearbyLocation?.id && samples && samplesToLocations) {
-			const sams = getSamplesFromLocations(
-				liveLocations.nearbyLocation,
-				samples?.samples,
-				samplesToLocations?.samples_to_locations,
+		if (nearbyLocation?.id && samples && samplesToLocations) {
+			const samplesFromLocations = getSamplesFromLocations(
+				nearbyLocation,
+				samples,
+				samplesToLocations,
 			);
 
-			const rec = sams?.map((sample) => {
+			const extractedRecordingData = samplesFromLocations?.map((sample) => {
 				return { type: sample.type, recording_data: sample.recording_data };
 			});
-			if (rec?.length > 0) {
-				setRecordingData(rec);
+			if (extractedRecordingData?.length > 0) {
+				setRecordingData(extractedRecordingData);
 				setHasRecordingData(true);
 			} else {
 				setRecordingData([]);
 				setHasRecordingData(false);
 			}
 		}
-	}, [liveLocations.nearbyLocation, samples, samplesToLocations]);
+	}, [nearbyLocation, samples, samplesToLocations]);
 
 	useWhyDidYouUpdate('Context', { ...liveLocations });
 
