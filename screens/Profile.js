@@ -63,7 +63,7 @@ export default function Profile() {
 }
 
 function KeyboardAvoid({ children }) {
-	const stl = StyleSheet.create({
+	const dynamicStyles = StyleSheet.create({
 		container: {
 			flex: 1,
 		},
@@ -82,7 +82,7 @@ function KeyboardAvoid({ children }) {
 			textAlign: 'center',
 			// borderColor: '#000000',
 			// borderBottomWidth: 1,
-			marginBottom: 36,
+			// marginBottom: 36,
 			color: colors.white,
 		},
 	});
@@ -93,18 +93,21 @@ function KeyboardAvoid({ children }) {
 	const { themeColors } = useTheme();
 	return (
 		<SafeAreaView
-			style={[stl.container, { backgroundColor: themeColors.bgColor }]}
+			style={[
+				dynamicStyles.container,
+				{ backgroundColor: themeColors.bgColor },
+			]}
 		>
 			<KeyboardAvoidingView behavior={'position'}>
-				<ScrollView>
+				<ScrollView showsVerticalScrollIndicator={false}>
 					<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-						<View style={stl.inner}>
+						<View style={dynamicStyles.inner}>
 							{children}
 							<TextInput
 								placeholder="Enter Your Name"
 								placeholderTextColor={themeColors.fgColor}
 								style={[
-									stl.textInput,
+									dynamicStyles.textInput,
 									{
 										backgroundColor: themeColors.fgColorLighter,
 										color: themeColors.fgColor,
@@ -158,7 +161,8 @@ const styles = StyleSheet.create({
 		borderWidth: 4,
 		borderRadius: 10,
 		borderColor: colors.light.fgColorLighter,
-		height: height / 2,
+		width: '100%',
+		aspectRatio: 3 / 4,
 		flex: 1,
 		display: 'flex',
 		justifyContent: 'flex-end',
@@ -171,7 +175,8 @@ const styles = StyleSheet.create({
 		borderRadius: 10,
 		borderColor: '#999',
 		borderStyle: 'dashed',
-		height: height / 2,
+		width: '100%',
+		aspectRatio: 3 / 4,
 		display: 'flex',
 		justifyContent: 'center',
 		alignItems: 'center',

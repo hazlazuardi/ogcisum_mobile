@@ -59,7 +59,6 @@ function tabOptions(icon, isLogo) {
 			<TabIcon focused={focused} icon={icon} isLogo={isLogo} size={size} />
 		),
 		tabBarShowLabel: false,
-		tabBarStyle: [styles.tabContainer],
 	};
 }
 
@@ -78,16 +77,29 @@ function TabIcon({ focused, icon, isLogo }) {
 	const dynamicStyles = StyleSheet.create({
 		tabIconContainer: {
 			backgroundColor: focused && colors.blackColorTranslucentLess,
+			width: '100%',
 		},
 		tabIconImage: {
 			tintColor: focused ? colors.white : colors.whiteColorTranslucentLess,
+			width: '100%',
+			height: '100%',
 		},
 
 		tabLogoImage: {
-			flex: isNearAndHasRecordingData ? 0.8 : 1,
+			// flex: isNearAndHasRecordingData ? 0.8 : 1,
+			flex: 1,
+			width: '100%',
+			height: '100%',
 		},
 		tabLogoImageContainer: {
 			paddingBottom: isNearAndHasRecordingData && sizes.tabPadding / 2,
+			// marginBottom: 4,
+		},
+		tabLogoTextContainer: {
+			width: '100%',
+			height: '100%',
+			flex: 1,
+			// paddingTop: isNearAndHasRecordingData && sizes.tabPadding / 2,
 		},
 	});
 	if (!isLogo) {
@@ -104,7 +116,12 @@ function TabIcon({ focused, icon, isLogo }) {
 	if (isLogo) {
 		return (
 			<View style={[styles.tabLogoContainer, dynamicStyles.tabIconContainer]}>
-				<View style={[styles.tabLogoImageContainer]}>
+				<View
+					style={[
+						styles.tabLogoImageContainer,
+						dynamicStyles.tabLogoImageContainer,
+					]}
+				>
 					<Image
 						source={icon}
 						resizeMode="contain"
@@ -112,7 +129,7 @@ function TabIcon({ focused, icon, isLogo }) {
 					/>
 				</View>
 				{isNearAndHasRecordingData && (
-					<View>
+					<View style={dynamicStyles.tabLogoTextContainer}>
 						<Text style={styles.tabLogoText}>There's Music Nearby</Text>
 					</View>
 				)}
@@ -123,10 +140,6 @@ function TabIcon({ focused, icon, isLogo }) {
 
 /** StyleSheet as a wider scope to reduce re-render. */
 const styles = StyleSheet.create({
-	tabContainer: {
-		height: sizes.bottomTabBarHeight,
-		paddingBottom: sizes.padding,
-	},
 	linearGradient: {
 		height: '100%',
 	},
@@ -139,6 +152,7 @@ const styles = StyleSheet.create({
 	},
 	tabLogoImageContainer: {
 		width: '100%',
+		height: '100%',
 		flex: 1,
 		paddingHorizontal: 4,
 		alignItems: 'center',
@@ -154,12 +168,8 @@ const styles = StyleSheet.create({
 		justifyContent: 'center',
 		width: '90%',
 		height: '100%',
-		padding: sizes.padding,
+		padding: sizes.tabPadding,
 		flex: 1,
 		aspectRatio: 1,
-	},
-	tabIconImage: {
-		width: 30,
-		height: sizes.tabIcon,
 	},
 });
