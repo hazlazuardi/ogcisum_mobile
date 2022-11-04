@@ -29,7 +29,10 @@ export const sizes = {
 	radius: 12,
 	padding: 24,
 	headerHeight: 200,
-	bottomTabBarHeight: 50,
+	bottomTabBarHeight: 80,
+	tabIcon: 30,
+	tabImage: 20,
+	tabPadding: 10,
 
 	// Font sizes
 	heading: 22,
