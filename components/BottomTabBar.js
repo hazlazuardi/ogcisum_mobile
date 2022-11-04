@@ -77,7 +77,7 @@ function TabIcon({ focused, icon, isLogo }) {
 	const dynamicStyles = StyleSheet.create({
 		tabIconContainer: {
 			backgroundColor: focused && colors.blackColorTranslucentLess,
-			width: '100%',
+			width: isLogo ? '120%' : '90%',
 		},
 		tabIconImage: {
 			tintColor: focused ? colors.white : colors.whiteColorTranslucentLess,
