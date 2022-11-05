@@ -150,14 +150,4 @@ const styles = StyleSheet.create({
 	container: {
 		flex: 1,
 	},
-	nearbyLocationSafeAreaView: {
-		backgroundColor: 'black',
-	},
-	nearbyLocationView: {
-		padding: 20,
-	},
-	nearbyLocationText: {
-		color: 'white',
-		lineHeight: 25,
-	},
 });

@@ -1,5 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import PropTypes from 'prop-types';
+
 import { useTheme } from '../context/Context';
 import { sizes } from '../data/theme';
 
@@ -18,7 +20,7 @@ export default function ButtonIOS({ text, onPress, fullWidth, disabled }) {
 		buttonTouchable: {
 			backgroundColor: disabled
 				? themeColors.fgColorLighter
-				: themeColors.headerTextColor,
+				: themeColors.textColor,
 			flex: fullWidth && 1,
 		},
 		buttonText: {
@@ -41,24 +43,28 @@ export default function ButtonIOS({ text, onPress, fullWidth, disabled }) {
 	);
 }
 
+ButtonIOS.propTypes = {
+	text: PropTypes.string,
+	onPress: PropTypes.func,
+	fullWidth: PropTypes.bool,
+	disabled: PropTypes.bool,
+};
+
 /** Stylesheet containing styles that use non-dynamic conditions. Exists so these objects won't re-render */
 const styles = StyleSheet.create({
 	buttonContainer: {
 		flexDirection: 'row',
 		justifyContent: 'space-around',
 	},
-	buttonTouchable: {
-		paddingHorizontal: sizes.padding,
-		paddingVertical: sizes.padding / 2,
-		display: 'flex',
-		justifyContent: 'center',
-		alignItems: 'center',
-		borderRadius: sizes.radius,
-	},
-	buttonDisabled: {
-		opacity: '0.5',
-	},
 	buttonText: {
 		fontWeight: '800',
+	},
+	buttonTouchable: {
+		alignItems: 'center',
+		borderRadius: sizes.radius,
+		display: 'flex',
+		justifyContent: 'center',
+		paddingHorizontal: sizes.padding,
+		paddingVertical: sizes.padding / 2,
 	},
 });

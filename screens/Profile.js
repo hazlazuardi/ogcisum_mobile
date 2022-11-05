@@ -12,6 +12,8 @@ import {
 	ImageBackground,
 } from 'react-native';
 
+import PropTypes from 'prop-types';
+
 import { launchImageLibrary } from 'react-native-image-picker';
 import KeyboardAvoidingView from 'react-native/Libraries/Components/Keyboard/KeyboardAvoidingView';
 import ButtonIOS from '../components/ButtonIOS';
@@ -20,6 +22,7 @@ import { colors, sizes } from '../data/theme';
 
 /**
  * Main React component for Profile page
+ *
  * @return {JSX.Element} React component for Profile page
  */
 export default function Profile() {
@@ -51,26 +54,28 @@ export default function Profile() {
 
 	/** StyleSheet that uses dynamic conditions */
 	const dynamicStyles = StyleSheet.create({
-		themeTextColor: { color: themeColors.headerTextColor },
+		themeTextColor: { color: themeColors.textColor },
 	});
 
 	/** Main React Component for Profile page */
 	return (
 		<KeyboardView>
 			<View>
-				<Text style={[styles.header, dynamicStyles.themeTextColor]}>
-					Edit Profile
-				</Text>
-				<Text style={[styles.subtitle, dynamicStyles.themeTextColor]}>
-					Mirror, Mirror On The Wall...
-				</Text>
+				<View>
+					<Text style={[styles.header, dynamicStyles.themeTextColor]}>
+						Edit Profile
+					</Text>
+					<Text style={[styles.subtitle, dynamicStyles.themeTextColor]}>
+						Mirror, Mirror On The Wall...
+					</Text>
+				</View>
+				<Photo photo={profile.photo} onPress={handleChangePress}>
+					<ButtonIOS
+						onPress={handleChangePress}
+						text={hasPhoto ? 'Change Photo' : 'Add Photo'}
+					/>
+				</Photo>
 			</View>
-			<Photo photo={profile.photo} onPress={handleChangePress}>
-				<ButtonIOS
-					onPress={handleChangePress}
-					text={hasPhoto ? 'Change Photo' : 'Add Photo'}
-				/>
-			</Photo>
 		</KeyboardView>
 	);
 }
@@ -89,20 +94,20 @@ function KeyboardView({ children }) {
 	const { themeColors } = useTheme();
 
 	const dynamicStyles = StyleSheet.create({
+		keyboardChildren: {
+			flex: 1,
+			justifyContent: 'space-around',
+			padding: 24,
+		},
 		keyboardContainer: {
 			flex: 1,
 		},
-		keyboardChildren: {
-			padding: 24,
-			flex: 1,
-			justifyContent: 'space-around',
-		},
 		textInput: {
-			height: 40,
-			borderRadius: sizes.radius,
-			textAlign: 'center',
 			backgroundColor: themeColors.fgColorLighter,
+			borderRadius: sizes.radius,
 			color: themeColors.fgColor,
+			height: 40,
+			textAlign: 'center',
 		},
 	});
 	return (
@@ -130,6 +135,11 @@ function KeyboardView({ children }) {
 		</SafeAreaView>
 	);
 }
+
+/** Props checking */
+KeyboardView.propTypes = {
+	children: PropTypes.element,
+};
 
 /**
  * Main React component for Profile page
@@ -162,40 +172,46 @@ function Photo({ photo, children, onPress }) {
 	);
 }
 
+Photo.propTypes = {
+	photo: PropTypes.object,
+	children: PropTypes.element,
+	onPress: PropTypes.func,
+};
+
 const styles = StyleSheet.create({
-	photoFullView: {
-		overflow: 'hidden',
-		borderWidth: 4,
-		borderRadius: 10,
-		borderColor: colors.light.fgColorLighter,
-		width: '100%',
-		aspectRatio: 3 / 4,
-		flex: 1,
-		display: 'flex',
-		justifyContent: 'flex-end',
-		alignItems: 'center',
-		paddingBottom: sizes.padding,
-		marginBottom: sizes.padding,
-	},
-	photoEmptyView: {
-		borderWidth: 3,
-		borderRadius: 10,
-		borderColor: '#999',
-		borderStyle: 'dashed',
-		width: '100%',
-		aspectRatio: 3 / 4,
-		display: 'flex',
-		justifyContent: 'center',
-		alignItems: 'center',
-		marginBottom: sizes.padding,
-	},
 	header: {
 		fontSize: sizes.body1,
 		fontWeight: 'bold',
 	},
+	photoEmptyView: {
+		alignItems: 'center',
+		aspectRatio: 3 / 4,
+		borderColor: colors.grey,
+		borderRadius: 10,
+		borderStyle: 'dashed',
+		borderWidth: 3,
+		display: 'flex',
+		justifyContent: 'center',
+		marginBottom: sizes.padding,
+		width: '100%',
+	},
+	photoFullView: {
+		alignItems: 'center',
+		aspectRatio: 3 / 4,
+		borderColor: colors.light.fgColorLighter,
+		borderRadius: 10,
+		borderWidth: 4,
+		display: 'flex',
+		flex: 1,
+		justifyContent: 'flex-end',
+		marginBottom: sizes.padding,
+		overflow: 'hidden',
+		paddingBottom: sizes.padding,
+		width: '100%',
+	},
 	subtitle: {
-		fontSize: sizes.body3,
 		color: colors.light.fgColor,
+		fontSize: sizes.body3,
 		marginBottom: sizes.padding,
 	},
 });

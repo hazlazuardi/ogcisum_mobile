@@ -5,10 +5,10 @@ import {
 	ScrollView,
 	View,
 	Image,
-	Dimensions,
 	StyleSheet,
 	RefreshControl,
 } from 'react-native';
+import PropTypes from 'prop-types';
 
 import { WebView } from 'react-native-webview';
 import {
@@ -18,24 +18,35 @@ import {
 	useTheme,
 } from '../context/Context';
 import { colors, sizes } from '../data/theme';
+
 import ButtonIOS from '../components/ButtonIOS';
 import HeaderText from '../components/HeaderText';
 import BodyText from '../components/BodyText';
 import TitleText from '../components/TitleText';
 
-const { height } = Dimensions.get('window');
-export default function NowPlaying() {
+/**
+ * React component for main Now Playing page
+ *
+ * @return {JSX.Element} React component for main Now Playing page.
+ */
+function NowPlaying() {
 	const { recordingData, hasRecordingData, fetchSTL, statusSTL } = useSamples();
 	const { liveLocations } = useLocation();
 	const { nearbyLocation } = liveLocations;
 
+	/** useState for pull to refresh functionality */
 	const [refreshing, setRefreshing] = useState(false);
 
+	/**
+	 * Function for onRefresh function on Refresh Control.
+	 * When the user pull the screen down, this function
+	 * will be invoked.
+	 *
+	 * @callback onRefresh
+	 * */
 	const onRefresh = useCallback(() => {
 		setRefreshing(true);
-		console.log('refresh');
 		fetchSTL();
-		console.log(statusSTL);
 		if (statusSTL === 'success') {
 			setRefreshing(false);
 		}
@@ -57,13 +68,18 @@ export default function NowPlaying() {
 	});
 	const webViewRef = useRef();
 
-	/** This function is invoked when webView is loaded (onLoad) */
-	function webViewLoaded() {
+	/**
+	 * Function for onPress function on ButtonIOS
+	 *
+	 * @callback onLoadWebview
+	 * */
+	const onLoadWebview = useCallback(() => {
 		setWebViewState({
 			...webViewState,
 			loaded: true,
 		});
-	}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 
 	/** This function is invoked when play button is pressed (onPress) */
 	function handleActionPress() {
@@ -114,8 +130,8 @@ export default function NowPlaying() {
 					</>
 				) : (
 					<View style={styles.section}>
-						<HeaderText>No music nearby</HeaderText>
-						<BodyText>Oh it's so quiet here...</BodyText>
+						<HeaderText text={'No music nearby'} />
+						<BodyText text={"Oh it's so quiet here..."} />
 					</View>
 				)}
 			</ScrollView>
@@ -128,7 +144,7 @@ export default function NowPlaying() {
 						uri: 'https://wmp.interaction.courses/playback-webview/',
 					}}
 					pullToRefreshEnabled={true}
-					onLoad={webViewLoaded}
+					onLoad={onLoadWebview}
 					style={styles.webView}
 				/>
 			</View>
@@ -155,17 +171,21 @@ function ProfileListItem({ isUser }) {
 					style={styles.profilePicture}
 				/>
 			</View>
-			<BodyText>
-				{isUser ? profile.name || 'Enter Your Name' : 'And Others...'}
-			</BodyText>
+			<BodyText
+				text={isUser ? profile.name || 'Enter Your Name' : 'And Others...'}
+			/>
 		</View>
 	);
 }
 
+ProfileListItem.propTypes = {
+	isUser: PropTypes.bool,
+};
+
 function ProfileLists() {
 	return (
 		<View style={styles.section}>
-			<TitleText>Currently At This Location: </TitleText>
+			<TitleText text={'Currently At This Location: '} />
 			<ProfileListItem isUser={true} />
 			<ProfileListItem />
 		</View>
@@ -191,6 +211,11 @@ function PlayButton({ webViewState, handlePlay }) {
 	);
 }
 
+PlayButton.propTypes = {
+	webViewState: PropTypes.object,
+	handlePlay: PropTypes.func,
+};
+
 function MusicPlayer({ nearbyLocation, webViewState, handlePlay }) {
 	const { themeIcons } = useTheme();
 	return (
@@ -205,10 +230,10 @@ function MusicPlayer({ nearbyLocation, webViewState, handlePlay }) {
 						/>
 					</View>
 					<View style={styles.headerTextContainer}>
-						<HeaderText>{nearbyLocation.location}</HeaderText>
-						<BodyText>
-							{nearbyLocation.suburb}, {nearbyLocation.state}
-						</BodyText>
+						<HeaderText text={nearbyLocation.location} />
+						<BodyText
+							text={`${nearbyLocation.suburb}, ${nearbyLocation.state}`}
+						/>
 					</View>
 				</View>
 				{webViewState && (
@@ -219,98 +244,72 @@ function MusicPlayer({ nearbyLocation, webViewState, handlePlay }) {
 	);
 }
 
+MusicPlayer.propTypes = {
+	nearbyLocation: PropTypes.object,
+	webViewState: PropTypes.object,
+	handlePlay: PropTypes.func,
+};
+
 const styles = StyleSheet.create({
+	container: {
+		flex: 1,
+		justifyContent: 'space-between',
+		paddingHorizontal: sizes.padding,
+	},
 	flexRow: {
 		display: 'flex',
 		flexDirection: 'row',
 	},
+
 	groupView: {
 		paddingBottom: sizes.padding,
-	},
-
-	safeContainer: {
-		flex: 1,
-	},
-	container: {
-		paddingHorizontal: sizes.padding,
-		justifyContent: 'space-between',
-		flex: 1,
-	},
-	webViewContainer: {
-		height: height / 2,
-		borderWidth: 3,
-		marginBottom: 20,
-	},
-	buttonContainer: {
-		flexDirection: 'row',
-		justifyContent: 'space-around',
-	},
-	playButton: {
-		backgroundColor: colors.purpleColorLighter,
-		paddingHorizontal: sizes.padding,
-		paddingVertical: sizes.padding / 2,
-		width: '100%',
-		display: 'flex',
-		justifyContent: 'center',
-		alignItems: 'center',
-		borderRadius: sizes.radius,
-	},
-	playButtonText: {
-		color: colors.white,
-	},
-	section: {
-		paddingVertical: sizes.padding,
-		// backgroundColor: 'green',
 	},
 	headerContainer: {
 		height: sizes.headerHeight,
 		// backgroundColor: 'red',
 	},
+	headerIcon: {
+		height: '55%',
+		width: '100%',
+	},
 	headerIconContainer: {
+		alignItems: 'center',
 		flex: 1,
 		justifyContent: 'center',
-		alignItems: 'center',
 		// backgroundColor: 'green',
-	},
-	headerIcon: {
-		width: '100%',
-		height: '55%',
 	},
 	headerTextContainer: {
 		flex: 3,
 		justifyContent: 'center',
 	},
-	headingLocation: {
-		fontSize: sizes.body1,
-		fontWeight: 'bold',
-		marginBottom: 8,
-	},
-	subHeadingLocation: {
-		fontSize: sizes.body3,
-	},
 	profileCard: {
+		alignItems: 'center',
 		display: 'flex',
 		flexDirection: 'row',
-		alignItems: 'center',
 		paddingTop: sizes.padding,
-	},
-	profilePictureContainer: {
-		aspectRatio: 1,
-		width: '20%',
-		alignItems: 'center',
-		justifyContent: 'center',
-		marginRight: sizes.padding,
-		borderWidth: 3,
-		borderColor: colors.light.fgColorLighter,
-		borderRadius: 1000,
 	},
 	profilePicture: {
 		borderRadius: 1000,
-		width: '100%',
 		height: '100%',
+		width: '100%',
 	},
-	profileName: {
-		color: colors.light.fgColor,
-		fontWeight: '600',
+	profilePictureContainer: {
+		alignItems: 'center',
+		aspectRatio: 1,
+		borderColor: colors.light.fgColorLighter,
+		borderRadius: 1000,
+		borderWidth: 3,
+		justifyContent: 'center',
+		marginRight: sizes.padding,
+		width: '20%',
+	},
+	safeContainer: {
+		flex: 1,
+	},
+	section: {
+		paddingVertical: sizes.padding,
+		// backgroundColor: 'green',
 	},
 });
+
+export default NowPlaying;

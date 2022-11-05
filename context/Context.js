@@ -6,6 +6,7 @@ import React, {
 	useReducer,
 } from 'react';
 import { useColorScheme } from 'react-native';
+import PropTypes from 'prop-types';
 
 import {
 	LOCATION_URL,
@@ -35,7 +36,7 @@ const samplesToLocationsFetcher = async () => {
 	return fetch(SAMPLES_TO_LOCATIONS_URL).then((res) => res.json());
 };
 
-export default function StoreProvider({ children }) {
+function StoreProvider({ children }) {
 	/** Reducer to store live locations and update it using dispatch. */
 	const [profile, dispatchProfile] = useReducer(profileReducer, initialProfile);
 
@@ -147,6 +148,10 @@ export default function StoreProvider({ children }) {
 	);
 }
 
+StoreProvider.propTypes = {
+	children: PropTypes.element,
+};
+
 /** Custom hook to get live locations from context. */
 export function useLocation() {
 	return useContext(LocationContext);
@@ -210,3 +215,5 @@ const initialProfile = {
 	photo: {},
 	name: '',
 };
+
+export default StoreProvider;

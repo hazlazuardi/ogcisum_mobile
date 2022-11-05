@@ -7,31 +7,27 @@ export const colors = {
 	whiteColorTranslucentLess: 'rgba(255,255,255,0.35)',
 	whiteColorTranslucentMore: 'rgba(255,255,255,0.7)',
 	white: 'rgba(255,255,255,1)',
+	grey: '#999',
 
 	light: {
 		bgColor: '#ffffff',
 		fgColor: '#800080',
 		fgColorLighter: 'rgba(185,135,188,1)',
-		headerTextColor: '#800080',
+		textColor: '#800080',
 	},
 	dark: {
 		bgColor: '#422142',
 		fgColor: '#f0c4f0',
 		fgColorLighter: 'rgba(210,169,210,0.5)',
-		headerTextColor: '#f0c4f0',
+		textColor: '#f0c4f0',
 	},
 };
 
 export const sizes = {
 	// Global sizes
-	base: 8,
-	font: 14,
 	radius: 12,
 	padding: 24,
 	headerHeight: 200,
-	bottomTabBarHeight: 60,
-	tabIcon: 30,
-	tabImage: 20,
 	tabPadding: 10,
 
 	// Font sizes
