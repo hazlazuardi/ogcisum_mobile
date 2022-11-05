@@ -1,6 +1,6 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { Dimensions, Image, StyleSheet, Text, View } from 'react-native';
 
 import icons from '../data/icons';
 import { colors, sizes } from '../data/theme';
@@ -12,7 +12,7 @@ import LinearGradient from 'react-native-linear-gradient';
 
 /** Initiate BottomTabNavigator */
 const Tab = createBottomTabNavigator();
-
+const { height } = Dimensions.get('window');
 /** This is main component for Bottom Tab Bar */
 export default function BottomTabBar({ navigation }) {
 	return (
@@ -59,11 +59,17 @@ function tabOptions(icon, isLogo) {
 			<TabIcon focused={focused} icon={icon} isLogo={isLogo} size={size} />
 		),
 		tabBarShowLabel: false,
+		tabBarStyle: {
+			height: height / 10,
+		},
+		tabBarItemStyle: {
+			flex: isLogo ? 2 : 1,
+		},
 	};
 }
 
 /** This is a Tab Icon component to be passed to tabBarIcon. */
-function TabIcon({ focused, icon, isLogo }) {
+function TabIcon({ focused, icon, isLogo, size }) {
 	/** Retrieve live locations from Context. */
 	const { liveLocations } = useLocation();
 
@@ -77,7 +83,9 @@ function TabIcon({ focused, icon, isLogo }) {
 	const dynamicStyles = StyleSheet.create({
 		tabIconContainer: {
 			backgroundColor: focused && colors.blackColorTranslucentLess,
-			width: isLogo ? '120%' : '90%',
+			padding: size / 3,
+			// width: isLogo ? '120%' : '90%',
+			// width: isLogo ? 140 : 60,
 		},
 		tabIconImage: {
 			tintColor: focused ? colors.white : colors.whiteColorTranslucentLess,
@@ -87,18 +95,23 @@ function TabIcon({ focused, icon, isLogo }) {
 
 		tabLogoImage: {
 			// flex: isNearAndHasRecordingData ? 0.8 : 1,
-			flex: 1,
+			// paddingBottom: sizes.tabPadding / 2,
+			// flex: 1,
 			width: '100%',
 			height: '100%',
 		},
 		tabLogoImageContainer: {
-			paddingBottom: isNearAndHasRecordingData && sizes.tabPadding / 2,
-			// marginBottom: 4,
+			// alignItems: 'center',
+			// justifyContent: 'center',
+			flex: 1.5,
+			padding: isNearAndHasRecordingData ? null : sizes.tabPadding / 2,
 		},
 		tabLogoTextContainer: {
 			width: '100%',
 			height: '100%',
 			flex: 1,
+			// alignItems: 'center',
+			// justifyContent: 'center',
 			// paddingTop: isNearAndHasRecordingData && sizes.tabPadding / 2,
 		},
 	});
@@ -140,23 +153,31 @@ function TabIcon({ focused, icon, isLogo }) {
 
 /** StyleSheet as a wider scope to reduce re-render. */
 const styles = StyleSheet.create({
+	flexCenter: {
+		justifyContent: 'center',
+		alignItems: 'center',
+	},
+	flexSpaceAround: {
+		justifyContent: 'space-around',
+		alignItems: 'center',
+	},
 	linearGradient: {
 		height: '100%',
 	},
 	tabLogoContainer: {
-		justifyContent: 'space-around',
-		alignItems: 'center',
-		width: '120%',
+		// justifyContent: 'space-around',
+		// alignItems: 'center',
+		width: '100%',
 		flex: 1,
-		padding: 8,
+		// padding: sizes.tabPadding,
 	},
 	tabLogoImageContainer: {
 		width: '100%',
 		height: '100%',
 		flex: 1,
 		paddingHorizontal: 4,
-		alignItems: 'center',
-		justifyContent: 'center',
+		// alignItems: 'center',
+		// justifyContent: 'center',
 	},
 	tabLogoText: {
 		color: colors.white,
@@ -164,11 +185,11 @@ const styles = StyleSheet.create({
 		fontSize: sizes.body5,
 	},
 	tabIconContainer: {
-		alignItems: 'center',
-		justifyContent: 'center',
+		// alignItems: 'center',
+		// justifyContent: 'center',
 		width: '90%',
 		height: '100%',
-		padding: sizes.tabPadding,
+		// padding: sizes.tabPadding,
 		flex: 1,
 		aspectRatio: 1,
 	},
