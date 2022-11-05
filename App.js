@@ -1,8 +1,8 @@
 import React from 'react';
 
 import { NavigationContainer } from '@react-navigation/native';
-import BottomTabBar from './components/BottomTabBar';
-import StoreProvider from './context/Context';
+import BottomTabBar from './src/components/BottomTabBar';
+import StoreProvider from './src/context/Context';
 
 export default function App() {
 	return (
