@@ -12,7 +12,7 @@ import LinearGradient from 'react-native-linear-gradient';
 
 /** Initiate BottomTabNavigator */
 const Tab = createBottomTabNavigator();
-const { height } = Dimensions.get('window');
+const { height } = Dimensions.get('screen');
 /** This is main component for Bottom Tab Bar */
 export default function BottomTabBar({ navigation }) {
 	return (
@@ -83,7 +83,7 @@ function TabIcon({ focused, icon, isLogo, size }) {
 	const dynamicStyles = StyleSheet.create({
 		tabIconContainer: {
 			backgroundColor: focused && colors.blackColorTranslucentLess,
-			padding: size / 3,
+			padding: isLogo ? size / 3 : size / 2,
 			// width: isLogo ? '120%' : '90%',
 			// width: isLogo ? 140 : 60,
 		},
@@ -94,11 +94,9 @@ function TabIcon({ focused, icon, isLogo, size }) {
 		},
 
 		tabLogoImage: {
-			// flex: isNearAndHasRecordingData ? 0.8 : 1,
-			// paddingBottom: sizes.tabPadding / 2,
-			// flex: 1,
 			width: '100%',
 			height: '100%',
+			opacity: !focused && !isNearAndHasRecordingData ? 0.5 : 1,
 		},
 		tabLogoImageContainer: {
 			// alignItems: 'center',
