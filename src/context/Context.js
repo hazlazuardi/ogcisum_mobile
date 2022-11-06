@@ -140,7 +140,6 @@ function StoreProvider({ children }) {
 		) {
 			const filteredSharedSamples = allSharedSamples
 				.filter((stl) => stl.locations_id === nearestLocation.id)
-				.map((stl) => stl)
 				.map((stl) => stl.samples_id);
 			const filteredSamples = allSamples
 				.filter((sam) => filteredSharedSamples.includes(sam.id))
