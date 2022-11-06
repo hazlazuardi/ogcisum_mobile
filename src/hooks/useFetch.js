@@ -1,7 +1,13 @@
-// Reference:
-// https://usehooks.com
-
 import { useState, useEffect, useCallback } from 'react';
+
+// Reference:
+// *    Title: useAsync
+// *    Author: Ragland, G
+// *    Date: January 14, 2020
+// *    Code version: 1.0
+// *    Availability: https://usehooks.com
+//
+
 /**
  *
  * @param {Function} asyncFunction - Async function to use.

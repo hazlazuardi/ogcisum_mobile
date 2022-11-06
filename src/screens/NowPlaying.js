@@ -156,6 +156,7 @@ function NowPlaying() {
 					pullToRefreshEnabled={true}
 					onLoad={onLoadWebview}
 					style={styles.webView}
+					ignoreSilentHardwareSwitch={true}
 				/>
 			</View>
 		</SafeAreaView>
