@@ -32,7 +32,7 @@ function OgcisumText({ variant, text }) {
 }
 
 OgcisumText.propTypes = {
-	variant: PropTypes.string,
+	variant: PropTypes.string.isRequired,
 	text: PropTypes.string,
 };
 

@@ -27,15 +27,17 @@
 // }
 
 {
-	"parser": "babel-eslint",
+	"parser": "@babel/eslint-parser",
 	"parserOptions": {
 		"ecmaFeatures": {
 			"jsx": true
-		}
+		},
+		"requireConfigFile": false
 	},
 	"env": {
 		"browser": true,
-		"react-native/react-native": true
+		"react-native/react-native": true,
+		"es2021": true
 	},
 	"plugins": ["react", "react-native", "react-hooks"],
 	"extends": ["eslint:recommended", "plugin:react/recommended"],
