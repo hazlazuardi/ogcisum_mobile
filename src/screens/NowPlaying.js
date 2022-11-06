@@ -6,6 +6,7 @@ import {
 	View,
 	StyleSheet,
 	RefreshControl,
+	LogBox,
 } from 'react-native';
 import { WebView } from 'react-native-webview';
 
@@ -23,6 +24,12 @@ import MusicPlayer from '../components/NowPlaying/MusicPlayer';
  * @returns {JSX.Element} React component for main Now Playing page.
  */
 function NowPlaying() {
+	/** 
+	 * Ignore all warning logs related to WMP API
+	 * not updating the samples yet.
+	 */
+	LogBox.ignoreAllLogs();
+
 	const {
 		recordingData,
 		hasRecordingData,
@@ -31,6 +38,13 @@ function NowPlaying() {
 	} = useSamples();
 	const { liveLocations } = useLocation();
 	const { nearbyLocation } = liveLocations;
+
+	/** useState to store webView loaded and actioned */
+	const [webViewState, setWebViewState] = useState({
+		loaded: false,
+		actioned: false,
+	});
+	const webViewRef = useRef();
 
 	/** useState for pull to refresh functionality */
 	const [refreshing, setRefreshing] = useState(false);
@@ -43,12 +57,19 @@ function NowPlaying() {
 	 * @callback onRefreshPull
 	 */
 	const onRefreshPull = useCallback(() => {
+		webViewRef.current.reload();
 		setRefreshing(true);
 		fetchSharedSamples();
+		if (webViewState.actioned === true) {
+			setWebViewState({
+				...webViewState,
+				actioned: false,
+			});
+		}
 		if (statusSharedSamples === 'success') {
 			setRefreshing(false);
 		}
-	}, []);
+	}, [webViewState.actioned, webViewState.loaded]);
 
 	/** Flag for current focus state of the screen. */
 	const isFocused = useIsFocused();
@@ -64,12 +85,6 @@ function NowPlaying() {
 		}
 	}, [isFocused]);
 
-	/** useState to store webView loaded and actioned */
-	const [webViewState, setWebViewState] = useState({
-		loaded: false,
-		actioned: false,
-	});
-	const webViewRef = useRef();
 
 	/**
 	 * Function for onLoad function on WebView.
@@ -135,6 +150,7 @@ function NowPlaying() {
 							nearbyLocation={nearbyLocation}
 							webViewState={webViewState}
 							onPressPlay={onPressPlay}
+							hasRecordingData={hasRecordingData}
 						/>
 						<ProfileLists />
 					</>

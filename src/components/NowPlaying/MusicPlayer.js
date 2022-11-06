@@ -14,9 +14,15 @@ import { styles } from './styles';
  * @param {object} props.nearbyLocation - Object containing nearest location data.
  * @param {object} props.webViewState - Object containing WebView state.
  * @param {Function} props.onPressPlay - Callback function invoked when user press Play.
+ * @param {boolean} props.hasRecordingData - Flag to indicate if samples exist.
  * @returns {JSX.Element} React component for MusicPlayer section.
  */
-function MusicPlayer({ nearbyLocation, webViewState, onPressPlay }) {
+function MusicPlayer({
+	nearbyLocation,
+	webViewState,
+	onPressPlay,
+	hasRecordingData,
+}) {
 	const { themeIcons } = useTheme();
 	return (
 		<View style={styles.section}>
@@ -38,7 +44,11 @@ function MusicPlayer({ nearbyLocation, webViewState, onPressPlay }) {
 					</View>
 				</View>
 				{webViewState && (
-					<PlayButton onPressPlay={onPressPlay} webViewState={webViewState} />
+					<PlayButton
+						onPressPlay={onPressPlay}
+						webViewState={webViewState}
+						hasRecordingData={hasRecordingData}
+					/>
 				)}
 			</View>
 		</View>
@@ -49,6 +59,7 @@ MusicPlayer.propTypes = {
 	nearbyLocation: PropTypes.object,
 	webViewState: PropTypes.object,
 	onPressPlay: PropTypes.func,
+	hasRecordingData: PropTypes.bool,
 };
 
 export default MusicPlayer;
