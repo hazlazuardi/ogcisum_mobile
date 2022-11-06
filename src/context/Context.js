@@ -21,7 +21,6 @@ import useFetch from '../hooks/useFetch';
 const LocationContext = createContext(null);
 const LocationDispatchContext = createContext(null);
 const SamplesContext = createContext(null);
-const SamplesToLocationsContext = createContext(null);
 const ProfileContext = createContext(null);
 const ThemeContext = createContext(null);
 
@@ -45,17 +44,31 @@ const samplesToLocationsFetcher = async () => {
  * @returns {JSX.Element} React component for Providers of data.
  */
 function StoreProvider({ children }) {
-	/** Reducer to store live locations and update it using dispatch. */
+	/**
+	 * Reducer to store profile and update it using dispatch.
+	 */
 	const [profile, dispatchProfile] = useReducer(profileReducer, initialProfile);
 
+	/**
+	 * useState to store live locations and update it using setLiveLocations.
+	 */
 	const [liveLocations, setLiveLocations] = useState(initialLiveLocations);
 	const { nearbyLocation } = liveLocations;
 
-	/** This is to fetch locations from API and store it into a state. */
+	/**
+	 * useState to store locations from API and setMusicLocations to update.
+	 */
 	const [musicLocations, setMusicLocations] = useState();
+
+	/**
+	 * Effect to fetch locations from API and store it in musicLocations state.
+	 * This effect will run at the first render only.
+	 */
 	useEffect(() => {
 		/**
-		 *
+		 * Function to get locations from API and store it in musicLocations state.
+		 * This function is inside a useEffect as a best practice since-
+		 * nothing uses this function anywhere else.
 		 */
 		async function getLocations() {
 			await fetch(LOCATION_URL)
@@ -76,10 +89,15 @@ function StoreProvider({ children }) {
 		getLocations();
 	}, []);
 
-	/** This is to fetch samples using custom hooks from API and store it into a state. */
+	/**
+	 * This is to fetch samples from API using custom hooks and store it into a state.
+	 */
 	const { value: samplesResponse } = useFetch(samplesFetcher, true);
 	const samples = samplesResponse?.samples;
-	/** This is to fetch samples_to_locations using custom hooks from API and store it into a state. */
+
+	/**
+	 * This is to fetch samples_to_locations from API using custom hooks  and store it into a state.
+	 */
 	const {
 		value: samplesToLocationsResponse,
 		execute: fetchSharedSamples,
@@ -87,26 +105,45 @@ function StoreProvider({ children }) {
 	} = useFetch(samplesToLocationsFetcher, true);
 	const samplesToLocations = samplesToLocationsResponse?.samples_to_locations;
 
+	/**
+	 * useState to store recording data and setRecordingData to update it.
+	 */
 	const [recordingData, setRecordingData] = useState(null);
+
+	/**
+	 * useState to store flag that indicates whether a location has a shared
+	 * recording data or not. setHasRecording data to update the state.
+	 */
 	const [hasRecordingData, setHasRecordingData] = useState(false);
+
+	/**
+	 * Effect to filter recording data by location id and store it to
+	 * recordingData state and update hasRecordingData flag.
+	 * This effect will run whenever samples, nearby location, or
+	 * shared samples change.
+	 */
 	useEffect(() => {
 		/**
 		 * This is a function to get samples from locations.
 		 * This function is inside a useEffect as a best practice since-
 		 * nothing uses this function anywhere else.
 		 *
-		 * @param {object} nearLoc - Object containing nearby location data.
-		 * @param {object} allSam - Object containing samples data.
-		 * @param {object} allStl - Object containing samples to locations data.
+		 * @param {object} nearestLocation - Object containing nearby location data.
+		 * @param {object} allSamples - Object containing samples data.
+		 * @param {object} allSharedSamples - Object containing samples to locations data.
 		 * @returns {Array} Array of filtered samples based on location.
 		 */
-		function getSamplesFromLocations(nearLoc, allSam, allStl) {
-			const filteredSamplesToLocations = allStl
-				.filter((stl) => stl.locations_id === nearLoc.id)
+		function getSamplesFromLocations(
+			nearestLocation,
+			allSamples,
+			allSharedSamples,
+		) {
+			const filteredSharedSamples = allSharedSamples
+				.filter((stl) => stl.locations_id === nearestLocation.id)
 				.map((stl) => stl)
 				.map((stl) => stl.samples_id);
-			const filteredSamples = allSam
-				.filter((sam) => filteredSamplesToLocations.includes(sam.id))
+			const filteredSamples = allSamples
+				.filter((sam) => filteredSharedSamples.includes(sam.id))
 				.map((sam) => {
 					const parsedRecordingData = {
 						...sam,
@@ -123,10 +160,10 @@ function StoreProvider({ children }) {
 				samples,
 				samplesToLocations,
 			);
-
 			const extractedRecordingData = samplesFromLocations?.map((sample) => {
 				return { type: sample.type, recording_data: sample.recording_data };
 			});
+
 			if (extractedRecordingData?.length > 0) {
 				setRecordingData(extractedRecordingData);
 				setHasRecordingData(true);
@@ -136,8 +173,6 @@ function StoreProvider({ children }) {
 			}
 		}
 	}, [nearbyLocation, samples, samplesToLocations]);
-
-	// useWhyDidYouUpdate('Context', { ...liveLocations });
 
 	/** Detect device's color scheme. */
 	const colorScheme = useColorScheme();
@@ -199,16 +234,6 @@ export function useLocationDispatch() {
  */
 export function useSamples() {
 	return useContext(SamplesContext);
-}
-
-/**
- * Custom hook to get samples_to_locations from context.
- *
- * @returns {object} Context object responsible for Samples
- * to Locations data.
- */
-export function useSamplesToLocations() {
-	return useContext(SamplesToLocationsContext);
 }
 
 /**

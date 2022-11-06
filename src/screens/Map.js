@@ -16,7 +16,7 @@ import { useLocation, useLocationDispatch, useTheme } from '../context/Context';
  *
  * @returns {JSX.Element} React component for Map page.
  */
-export default function Map() {
+function Map() {
 	/** Ignore all warning logs related to Geolocation */
 	LogBox.ignoreLogs([
 		'Sending `geolocationError` with no listeners registered.',
@@ -50,7 +50,6 @@ export default function Map() {
 		if (musicLocations && locationPermission === true) {
 			watchID = Geolocation.watchPosition(
 				(position) => {
-					console.log('wID', watchID);
 					setLiveLocations((prev) => ({
 						...prev,
 						userLocation: {
@@ -163,3 +162,5 @@ const styles = StyleSheet.create({
 		flex: 1,
 	},
 });
+
+export default Map;
