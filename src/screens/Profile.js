@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 
 import {
 	SafeAreaView,
@@ -16,14 +16,14 @@ import PropTypes from 'prop-types';
 
 import { launchImageLibrary } from 'react-native-image-picker';
 import KeyboardAvoidingView from 'react-native/Libraries/Components/Keyboard/KeyboardAvoidingView';
-import ButtonIOS from '../components/OgcisumButton';
+import OgcisumButton from '../components/OgcisumButton';
 import { useProfile, useTheme } from '../context/Context';
 import { colors, sizes } from '../data/theme';
 
 /**
  * Main React component for Profile page
  *
- * @return {JSX.Element} React component for Profile page
+ * @returns {JSX.Element} React component for Profile page
  */
 export default function Profile() {
 	const { profile, dispatchProfile: dispatch } = useProfile();
@@ -32,11 +32,11 @@ export default function Profile() {
 	const hasPhoto = typeof profile.photo.uri !== 'undefined';
 
 	/**
-	 * Function for onPress function on ButtonIOS
+	 * Async Function for onPress function on OgcisumButton
 	 *
-	 * @callback handleChangePress
-	 * */
-	async function handleChangePress() {
+	 * @callback onPressChangePhoto
+	 */
+	async function onPressChangePhoto() {
 		await launchImageLibrary()
 			.then((result) => {
 				if (typeof result.assets[0] === 'object') {
@@ -57,7 +57,6 @@ export default function Profile() {
 		themeTextColor: { color: themeColors.textColor },
 	});
 
-	/** Main React Component for Profile page */
 	return (
 		<KeyboardView>
 			<View>
@@ -69,9 +68,9 @@ export default function Profile() {
 						Mirror, Mirror On The Wall...
 					</Text>
 				</View>
-				<Photo photo={profile.photo} onPress={handleChangePress}>
-					<ButtonIOS
-						onPress={handleChangePress}
+				<Photo photo={profile.photo} onPress={onPressChangePhoto}>
+					<OgcisumButton
+						onPress={onPressChangePhoto}
 						text={hasPhoto ? 'Change Photo' : 'Add Photo'}
 					/>
 				</Photo>
@@ -82,15 +81,25 @@ export default function Profile() {
 
 /**
  * React component for Keyboard by wrapping the children and Text Input
- * obtain Profile name
- * @param {JSX.Element} children - React component(s) that are wrapped by this component
- * @return {JSX.Element} React component for Keyboard and TextInput
+ * obtain Profile name.
+ *
+ * @param {JSX.Element} children - React component(s) that are wrapped by this component.
+ * @returns {JSX.Element} React component for Keyboard and TextInput.
  */
 function KeyboardView({ children }) {
 	const { dispatchProfile } = useProfile();
-	function handleChange(value) {
+	/**
+	 * Function for onChangeText function on Text Input.
+	 * When the user type on the Text Field, this function
+	 * will be invoked.
+	 *
+	 * @callback onChangeName
+	 * @param {string} value - Text obtained from TextInput.
+	 */
+	const onChangeName = useCallback((value) => {
 		dispatchProfile({ type: 'setName', name: value });
-	}
+	}, []);
+
 	const { themeColors } = useTheme();
 
 	const dynamicStyles = StyleSheet.create({
@@ -126,7 +135,7 @@ function KeyboardView({ children }) {
 								placeholder="Enter Your Name"
 								placeholderTextColor={themeColors.fgColor}
 								style={dynamicStyles.textInput}
-								onChangeText={(value) => handleChange(value)}
+								onChangeText={(value) => onChangeName(value)}
 							/>
 						</View>
 					</TouchableWithoutFeedback>
@@ -142,11 +151,13 @@ KeyboardView.propTypes = {
 };
 
 /**
- * Main React component for Profile page
- * @param {Object} photo - Object containing Photo data
- * @param {JSX.Element} children - React component(s) that are wrapped by this component
- * @param {handleChangePress} onPress - A callback to handle onPress event
- * @return {JSX.Element} React component for Profile page
+ * React component for Profile Photo section.
+ *
+ * @param {object} props - props for this component.
+ * @param {object} props.photo - Object containing Photo data.
+ * @param {JSX.Element} props.children - React component(s) that are wrapped by this component.
+ * @param {Function} props.onPress - A callback to handle onPress event.
+ * @returns {JSX.Element} React component for Profile Photo section.
  */
 function Photo({ photo, children, onPress }) {
 	const hasPhoto = typeof photo.uri !== 'undefined';

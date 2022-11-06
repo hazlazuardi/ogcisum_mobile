@@ -26,10 +26,15 @@ import OgcisumText from '../components/OgcisumText';
 /**
  * React component for main Now Playing page
  *
- * @return {JSX.Element} React component for main Now Playing page.
+ * @returns {JSX.Element} React component for main Now Playing page.
  */
 function NowPlaying() {
-	const { recordingData, hasRecordingData, fetchSTL, statusSTL } = useSamples();
+	const {
+		recordingData,
+		hasRecordingData,
+		fetchSharedSamples,
+		statusSharedSamples,
+	} = useSamples();
 	const { liveLocations } = useLocation();
 	const { nearbyLocation } = liveLocations;
 
@@ -41,26 +46,31 @@ function NowPlaying() {
 	 * When the user pull the screen down, this function
 	 * will be invoked.
 	 *
-	 * @callback onRefresh
-	 * */
-	const onRefresh = useCallback(() => {
+	 * @callback onRefreshPull
+	 */
+	const onRefreshPull = useCallback(() => {
 		setRefreshing(true);
-		fetchSTL();
-		if (statusSTL === 'success') {
+		fetchSharedSamples();
+		if (statusSharedSamples === 'success') {
 			setRefreshing(false);
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
-	/** Reload webView when the screen changes */
+	/** Flag for current focus state of the screen. */
 	const isFocused = useIsFocused();
+
+	/**
+	 * Effect for reloading the WebView.
+	 * When the user changes screen, this
+	 * effect will run.
+	 */
 	useEffect(() => {
 		if (isFocused) {
 			webViewRef.current.reload();
 		}
 	}, [isFocused]);
 
-	/** useState to store webView loaded or actioned */
+	/** useState to store webView loaded and actioned */
 	const [webViewState, setWebViewState] = useState({
 		loaded: false,
 		actioned: false,
@@ -68,20 +78,27 @@ function NowPlaying() {
 	const webViewRef = useRef();
 
 	/**
-	 * Function for onPress function on OgcisumButton
+	 * Function for onLoad function on WebView.
+	 * When the WebView is loaded, this function
+	 * will be invoked.
 	 *
 	 * @callback onLoadWebview
-	 * */
+	 */
 	const onLoadWebview = useCallback(() => {
 		setWebViewState({
 			...webViewState,
 			loaded: true,
 		});
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
+	}, [webViewState.loaded, webViewState.actioned]);
 
-	/** This function is invoked when play button is pressed (onPress) */
-	function handleActionPress() {
+	/**
+	 * Function for onPress function on PlayButton.
+	 * When the Play Button is pressed, this function
+	 * will be invoked.
+	 *
+	 * @callback onPressPlay
+	 */
+	const onPressPlay = useCallback(() => {
 		const stringifiedSamples = JSON.stringify(recordingData);
 		if (!webViewState.actioned) {
 			webViewRef.current.injectJavaScript(`setupParts(${stringifiedSamples})`);
@@ -93,7 +110,7 @@ function NowPlaying() {
 			...webViewState,
 			actioned: !webViewState.actioned,
 		});
-	}
+	}, [webViewState.actioned, webViewState.loaded]);
 
 	/** This is to set style dynamically depending on color scheme */
 	const { themeColors } = useTheme();
@@ -109,7 +126,7 @@ function NowPlaying() {
 				refreshControl={
 					<RefreshControl
 						refreshing={refreshing}
-						onRefresh={onRefresh}
+						onRefresh={onRefreshPull}
 						tintColor={themeColors.fgColor}
 						title={'Fetching samples...'}
 						titleColor={themeColors.fgColor}
@@ -123,7 +140,7 @@ function NowPlaying() {
 						<MusicPlayer
 							nearbyLocation={nearbyLocation}
 							webViewState={webViewState}
-							handlePlay={handleActionPress}
+							onPressPlay={onPressPlay}
 						/>
 						<ProfileLists />
 					</>
@@ -151,6 +168,14 @@ function NowPlaying() {
 	);
 }
 
+/**
+ * React component for each Profile list item.
+ *
+ * @param {object} props - Object containing props for this component.
+ * @param {boolean} props.isUser - Flag to indicate whether the item is-
+ * showing user profile or not.
+ * @returns {JSX.Element} React component for Profile list item.
+ */
 function ProfileListItem({ isUser }) {
 	const { profile } = useProfile();
 	const { themeIcons } = useTheme();
@@ -182,6 +207,11 @@ ProfileListItem.propTypes = {
 	isUser: PropTypes.bool,
 };
 
+/**
+ * React component for Profile list section.
+ *
+ * @returns {JSX.Element} React component for Profile list section.
+ */
 function ProfileLists() {
 	return (
 		<View style={styles.section}>
@@ -192,7 +222,15 @@ function ProfileLists() {
 	);
 }
 
-function PlayButton({ webViewState, handlePlay }) {
+/**
+ * React component for Play Button in MusicPlayer section.
+ *
+ * @param {object} props - Object containing props for this component.
+ * @param {object} props.webViewState - Object containing WebView state.
+ * @param {Function} props.onPressPlay - Callback function invoked when user press Play.
+ * @returns {JSX.Element} React component for Play Button in MusicPlayer section.
+ */
+function PlayButton({ webViewState, onPressPlay }) {
 	let buttonText;
 	if (webViewState.loaded && !webViewState.actioned) {
 		buttonText = 'Play Music';
@@ -204,7 +242,7 @@ function PlayButton({ webViewState, handlePlay }) {
 	return (
 		<OgcisumButton
 			text={buttonText}
-			onPress={handlePlay}
+			onPress={onPressPlay}
 			fullWidth
 			disabled={!webViewState.loaded}
 		/>
@@ -213,10 +251,19 @@ function PlayButton({ webViewState, handlePlay }) {
 
 PlayButton.propTypes = {
 	webViewState: PropTypes.object,
-	handlePlay: PropTypes.func,
+	onPressPlay: PropTypes.func,
 };
 
-function MusicPlayer({ nearbyLocation, webViewState, handlePlay }) {
+/**
+ * React component for MusicPlayer section.
+ *
+ * @param {object} props - Object containing props for this component.
+ * @param {object} props.nearbyLocation - Object containing nearest location data.
+ * @param {object} props.webViewState - Object containing WebView state.
+ * @param {Function} props.onPressPlay - Callback function invoked when user press Play.
+ * @returns {JSX.Element} React component for MusicPlayer section.
+ */
+function MusicPlayer({ nearbyLocation, webViewState, onPressPlay }) {
 	const { themeIcons } = useTheme();
 	return (
 		<View style={styles.section}>
@@ -238,7 +285,7 @@ function MusicPlayer({ nearbyLocation, webViewState, handlePlay }) {
 					</View>
 				</View>
 				{webViewState && (
-					<PlayButton handlePlay={handlePlay} webViewState={webViewState} />
+					<PlayButton onPressPlay={onPressPlay} webViewState={webViewState} />
 				)}
 			</View>
 		</View>
@@ -248,7 +295,7 @@ function MusicPlayer({ nearbyLocation, webViewState, handlePlay }) {
 MusicPlayer.propTypes = {
 	nearbyLocation: PropTypes.object,
 	webViewState: PropTypes.object,
-	handlePlay: PropTypes.func,
+	onPressPlay: PropTypes.func,
 };
 
 const styles = StyleSheet.create({
@@ -261,13 +308,11 @@ const styles = StyleSheet.create({
 		display: 'flex',
 		flexDirection: 'row',
 	},
-
 	groupView: {
 		paddingBottom: sizes.padding,
 	},
 	headerContainer: {
 		height: sizes.headerHeight,
-		// backgroundColor: 'red',
 	},
 	headerIcon: {
 		height: '55%',
@@ -277,7 +322,6 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		flex: 1,
 		justifyContent: 'center',
-		// backgroundColor: 'green',
 	},
 	headerTextContainer: {
 		flex: 3,
@@ -309,7 +353,6 @@ const styles = StyleSheet.create({
 	},
 	section: {
 		paddingVertical: sizes.padding,
-		// backgroundColor: 'green',
 	},
 });
 

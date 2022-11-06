@@ -16,8 +16,13 @@ import LinearGradient from 'react-native-linear-gradient';
 const Tab = createBottomTabNavigator();
 const { height } = Dimensions.get('screen');
 
-/** This is main component for Bottom Tab Bar */
-function BottomTabBar({ navigation }) {
+/**
+ * This is main component for Bottom Tab Bar
+ *
+ * @returns {JSX.Element} - React Component for Bottom Tab Bar
+ * and Screens for this app.
+ */
+function BottomTabBar() {
 	return (
 		<Tab.Navigator
 			screenOptions={{
@@ -38,17 +43,17 @@ function BottomTabBar({ navigation }) {
 		>
 			<Tab.Screen
 				name="Map"
-				children={() => <Map navigation={navigation} />}
+				children={() => <Map />}
 				options={tabOptions(icons.tabMapPurple)}
 			/>
 			<Tab.Screen
 				name="Now Playing"
-				children={() => <NowPlaying navigation={navigation} />}
+				children={() => <NowPlaying />}
 				options={tabOptions(icons.logoWhite, true)}
 			/>
 			<Tab.Screen
 				name="Profile"
-				children={() => <Profile navigation={navigation} />}
+				children={() => <Profile />}
 				options={tabOptions(icons.tabProfilePurple)}
 			/>
 		</Tab.Navigator>
@@ -59,7 +64,13 @@ BottomTabBar.propTypes = {
 	navigation: PropTypes.object,
 };
 
-/** This function specify the tab options for each distinct tab */
+/**
+ * This function specify the tab options for each distinct tab
+ *
+ * @param {number} icon - Icon for each Tab to show.
+ * @param {boolean} isLogo - Flag to indicate if a Tab is for the Logo.
+ * @returns {object} - Options for Tab Screen options prop.
+ */
 function tabOptions(icon, isLogo) {
 	return {
 		tabBarIcon: ({ focused, size }) => (
@@ -75,7 +86,16 @@ function tabOptions(icon, isLogo) {
 	};
 }
 
-/** This is a Tab Icon component to be passed to tabBarIcon. */
+/**
+ * This is a Tab Icon component to be passed to tabBarIcon.
+ *
+ * @param {object} props - Object containing props for this component.
+ * @param {boolean} props.focused — Flag to indicate which Tab is focused.
+ * @param {number} props.icon - Icon for each Tab to show.
+ * @param {boolean} props.isLogo - Flag to indicate if a Tab is for the Logo.
+ * @param {number} props.size — Size of the Tab.
+ * @returns {JSX.Element} - React Component for each Tab.
+ */
 function TabIcon({ focused, icon, isLogo, size }) {
 	/** Retrieve live locations from Context. */
 	const { liveLocations } = useLocation();
@@ -123,29 +143,28 @@ function TabIcon({ focused, icon, isLogo, size }) {
 			</View>
 		);
 	}
-	if (isLogo) {
-		return (
-			<View style={[styles.tabLogoContainer, dynamicStyles.tabIconContainer]}>
-				<View
-					style={[
-						styles.tabLogoImageContainer,
-						dynamicStyles.tabLogoImageContainer,
-					]}
-				>
-					<Image
-						source={icon}
-						resizeMode="contain"
-						style={dynamicStyles.tabLogoImage}
-					/>
-				</View>
-				{isNearAndHasRecordingData && (
-					<View style={dynamicStyles.tabLogoTextContainer}>
-						<Text style={styles.tabLogoText}>There&apos;s Music Nearby</Text>
-					</View>
-				)}
+
+	return (
+		<View style={[styles.tabLogoContainer, dynamicStyles.tabIconContainer]}>
+			<View
+				style={[
+					styles.tabLogoImageContainer,
+					dynamicStyles.tabLogoImageContainer,
+				]}
+			>
+				<Image
+					source={icon}
+					resizeMode="contain"
+					style={dynamicStyles.tabLogoImage}
+				/>
 			</View>
-		);
-	}
+			{isNearAndHasRecordingData && (
+				<View style={dynamicStyles.tabLogoTextContainer}>
+					<Text style={styles.tabLogoText}>There&apos;s Music Nearby</Text>
+				</View>
+			)}
+		</View>
+	);
 }
 
 TabIcon.propTypes = {

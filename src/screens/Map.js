@@ -13,7 +13,8 @@ import { useLocation, useLocationDispatch, useTheme } from '../context/Context';
 
 /**
  *	This is the main component of Map page
- * @returns React component for Map page
+ *
+ * @returns {JSX.Element} React component for Map page.
  */
 export default function Map() {
 	/** Ignore all warning logs related to Geolocation */
@@ -39,7 +40,8 @@ export default function Map() {
 	/** use live location setter from Context  */
 	const setLiveLocations = useLocationDispatch();
 
-	/** useEffect to watch user's position in real time.
+	/**
+	 * useEffect to watch user's position in real time.
 	 * It also store the current user location into
 	 * live location's userLocation state in Context.
 	 */
@@ -65,11 +67,21 @@ export default function Map() {
 		};
 	}, [locationPermission, musicLocations, setLiveLocations]);
 
-	/** useEffect to calculate nearest location from user.
-	 * It also store the current nearest location into
-	 * live location's nearbyLocation state in Context.
+	/**
+	 * useEffect to calculate nearest location from user and
+	 * store the current nearest location into live location's
+	 * nearbyLocation state in Context.
 	 */
 	useEffect(() => {
+		/**
+		 * This is a function to get nearest location relative to user.
+		 * This function is inside a useEffect as a best practice since-
+		 * nothing uses this function anywhere else.
+		 *
+		 * @param {object} userCoordinate - Object containing user coordinate.
+		 * @param {Array} musicCoordinates - Array containing all music locations data.
+		 * @returns {object} Object containing nearest location data.
+		 */
 		function calculateDistance(userCoordinate, musicCoordinates) {
 			const nearestLocations = musicCoordinates
 				?.map((location) => {

@@ -1070,6 +1070,15 @@
   dependencies:
     "@types/hammerjs" "^2.0.36"
 
+"@es-joy/jsdoccomment@~0.36.0":
+  "integrity" "sha512-u0XZyvUF6Urb2cSivSXA8qXIpT/CxkHcdtZKoWusAzgzmsTWpg0F2FpWXsolHmMUyVY3dLWaoy+0ccJ5uf2QjA=="
+  "resolved" "https://registry.npmjs.org/@es-joy/jsdoccomment/-/jsdoccomment-0.36.0.tgz"
+  "version" "0.36.0"
+  dependencies:
+    "comment-parser" "1.3.1"
+    "esquery" "^1.4.0"
+    "jsdoc-type-pratt-parser" "~3.1.0"
+
 "@eslint/eslintrc@^1.3.3":
   "integrity" "sha512-uj3pT6Mg+3t39fvLrj8iuCIJ38zKO9FpGtJ4BBJebJhEwjoT+KLVNCcHT5QC9NGRIEi7fZ0ZR8YRb884auB4Lg=="
   "resolved" "https://registry.npmjs.org/@eslint/eslintrc/-/eslintrc-1.3.3.tgz"
@@ -2635,6 +2644,11 @@
   "resolved" "https://registry.npmjs.org/commander/-/commander-2.13.0.tgz"
   "version" "2.13.0"
 
+"comment-parser@1.3.1":
+  "integrity" "sha512-B52sN2VNghyq5ofvUsqZjmk6YkihBX5vMSChmSK9v4ShjKf3Vk5Xcmgpw4o+iIgtrnM/u5FiMpz9VKb8lpBveA=="
+  "resolved" "https://registry.npmjs.org/comment-parser/-/comment-parser-1.3.1.tgz"
+  "version" "1.3.1"
+
 "commondir@^1.0.1":
   "integrity" "sha512-W9pAhw0ja1Edb5GVdIF1mjZw/ASI0AlShXM83UUGe2DVr5TdAPEA1OA8m/g8zWp9x6On7gqufY+FatDbC3MDQg=="
   "resolved" "https://registry.npmjs.org/commondir/-/commondir-1.0.1.tgz"
@@ -2791,7 +2805,7 @@
   dependencies:
     "ms" "^2.1.1"
 
-"debug@^4.1.0", "debug@^4.1.1", "debug@^4.3.2", "debug@4":
+"debug@^4.1.0", "debug@^4.1.1", "debug@^4.3.2", "debug@^4.3.4", "debug@4":
   "integrity" "sha512-PRWFHuSU3eDtQJPvnNY7Jcket1j0t5OuOsFzPPzsekD52Zl8qUfFIPEiswXqIvHWGVHOgX+7G/vCNNhehwxfkQ=="
   "resolved" "https://registry.npmjs.org/debug/-/debug-4.3.4.tgz"
   "version" "4.3.4"
@@ -3143,6 +3157,19 @@
   "integrity" "sha512-gcLfn6P2PrFAVx3AobaOzlIEevpAEf9chTpFZz7bYfc7pz8XRv7vuKTIE4hxPKZSha6XWKKplDQ0x9Pq8xX2mg=="
   "resolved" "https://registry.npmjs.org/eslint-plugin-jest/-/eslint-plugin-jest-22.4.1.tgz"
   "version" "22.4.1"
+
+"eslint-plugin-jsdoc@^39.6.2":
+  "integrity" "sha512-dvgY/W7eUFoAIIiaWHERIMI61ZWqcz9YFjEeyTzdPlrZc3TY/3aZm5aB91NUoTLWYZmO/vFlYSuQi15tF7uE5A=="
+  "resolved" "https://registry.npmjs.org/eslint-plugin-jsdoc/-/eslint-plugin-jsdoc-39.6.2.tgz"
+  "version" "39.6.2"
+  dependencies:
+    "@es-joy/jsdoccomment" "~0.36.0"
+    "comment-parser" "1.3.1"
+    "debug" "^4.3.4"
+    "escape-string-regexp" "^4.0.0"
+    "esquery" "^1.4.0"
+    "semver" "^7.3.8"
+    "spdx-expression-parse" "^3.0.1"
 
 "eslint-plugin-n@^15.0.0", "eslint-plugin-n@^15.4.0":
   "integrity" "sha512-MkoKy9/lfd52TAXK4fkABgCp0aglk82Q3viy2UOWIEpTVE/Cem5P/UAxMBA4vSw7Gy+2egPqImE9euitLGp5aw=="
@@ -4830,6 +4857,11 @@
     "recast" "^0.20.4"
     "temp" "^0.8.4"
     "write-file-atomic" "^2.3.0"
+
+"jsdoc-type-pratt-parser@~3.1.0":
+  "integrity" "sha512-MgtD0ZiCDk9B+eI73BextfRrVQl0oyzRG8B2BjORts6jbunj4ScKPcyXGTbB6eXL4y9TzxCm6hyeLq/2ASzNdw=="
+  "resolved" "https://registry.npmjs.org/jsdoc-type-pratt-parser/-/jsdoc-type-pratt-parser-3.1.0.tgz"
+  "version" "3.1.0"
 
 "jsdom@^16.4.0":
   "integrity" "sha512-u9Smc2G1USStM+s/x1ru5Sxrl6mPYCbByG1U/hUmqaVsm4tbNyS7CicOSRyuGQYZhTu0h84qkZZQ/I+dzizSVw=="
@@ -6609,6 +6641,13 @@
   dependencies:
     "lru-cache" "^6.0.0"
 
+"semver@^7.3.8":
+  "integrity" "sha512-NB1ctGL5rlHrPJtFDVIVzTyQylMLu9N9VICA6HSFJo8MCGVTMW6gfpicwKmmK/dAjTOrqu5l63JJOpDSrAis3A=="
+  "resolved" "https://registry.npmjs.org/semver/-/semver-7.3.8.tgz"
+  "version" "7.3.8"
+  dependencies:
+    "lru-cache" "^6.0.0"
+
 "semver@2 || 3 || 4 || 5":
   "integrity" "sha512-sauaDf/PZdVgrLTNYHRtpXa1iRiKcaebiKQ1BJdpQlWH2lCvexQdX55snPFyK7QzpudqbCI0qXFfOasHdyNDGQ=="
   "resolved" "https://registry.npmjs.org/semver/-/semver-5.7.1.tgz"
@@ -6831,7 +6870,7 @@
   "resolved" "https://registry.npmjs.org/spdx-exceptions/-/spdx-exceptions-2.3.0.tgz"
   "version" "2.3.0"
 
-"spdx-expression-parse@^3.0.0":
+"spdx-expression-parse@^3.0.0", "spdx-expression-parse@^3.0.1":
   "integrity" "sha512-cbqHunsQWnJNE6KhVSMsMeH5H/L9EpymbzqTQ3uLwNCLZ1Q481oWaofqH7nO6V07xlXwY6PhQdQ2IedWx/ZK4Q=="
   "resolved" "https://registry.npmjs.org/spdx-expression-parse/-/spdx-expression-parse-3.0.1.tgz"
   "version" "3.0.1"

@@ -17,7 +17,6 @@ import icons from '../data/icons';
 import { colors } from '../data/theme';
 
 import useFetch from '../hooks/useFetch';
-import useWhyDidYouUpdate from '../hooks/useWhyDidYouUpdate';
 
 const LocationContext = createContext(null);
 const LocationDispatchContext = createContext(null);
@@ -26,16 +25,25 @@ const SamplesToLocationsContext = createContext(null);
 const ProfileContext = createContext(null);
 const ThemeContext = createContext(null);
 
-/** Function as async function for custom hook useFetch. */
+/** Async function for custom hook useFetch. */
 const samplesFetcher = async () => {
 	return fetch(SAMPLES_URL).then((res) => res.json());
 };
 
-/** Function as async function for custom hook useFetch. */
+/** Async function for custom hook useFetch. */
 const samplesToLocationsFetcher = async () => {
 	return fetch(SAMPLES_TO_LOCATIONS_URL).then((res) => res.json());
 };
 
+/**
+ * React component for the Context API that acts as
+ * the Store Provider.
+ *
+ * @param {object} props - Object containing props for this component.
+ * @param {JSX.Element} props.children — React components that can-
+ * access data in this Store.
+ * @returns {JSX.Element} React component for Providers of data.
+ */
 function StoreProvider({ children }) {
 	/** Reducer to store live locations and update it using dispatch. */
 	const [profile, dispatchProfile] = useReducer(profileReducer, initialProfile);
@@ -46,6 +54,9 @@ function StoreProvider({ children }) {
 	/** This is to fetch locations from API and store it into a state. */
 	const [musicLocations, setMusicLocations] = useState();
 	useEffect(() => {
+		/**
+		 *
+		 */
 		async function getLocations() {
 			await fetch(LOCATION_URL)
 				.then((res) => res.json())
@@ -71,14 +82,24 @@ function StoreProvider({ children }) {
 	/** This is to fetch samples_to_locations using custom hooks from API and store it into a state. */
 	const {
 		value: samplesToLocationsResponse,
-		execute: fetchSTL,
-		status: statusSTL,
+		execute: fetchSharedSamples,
+		status: statusSharedSamples,
 	} = useFetch(samplesToLocationsFetcher, true);
 	const samplesToLocations = samplesToLocationsResponse?.samples_to_locations;
 
 	const [recordingData, setRecordingData] = useState(null);
 	const [hasRecordingData, setHasRecordingData] = useState(false);
 	useEffect(() => {
+		/**
+		 * This is a function to get samples from locations.
+		 * This function is inside a useEffect as a best practice since-
+		 * nothing uses this function anywhere else.
+		 *
+		 * @param {object} nearLoc - Object containing nearby location data.
+		 * @param {object} allSam - Object containing samples data.
+		 * @param {object} allStl - Object containing samples to locations data.
+		 * @returns {Array} Array of filtered samples based on location.
+		 */
 		function getSamplesFromLocations(nearLoc, allSam, allStl) {
 			const filteredSamplesToLocations = allStl
 				.filter((stl) => stl.locations_id === nearLoc.id)
@@ -116,7 +137,7 @@ function StoreProvider({ children }) {
 		}
 	}, [nearbyLocation, samples, samplesToLocations]);
 
-	useWhyDidYouUpdate('Context', { ...liveLocations });
+	// useWhyDidYouUpdate('Context', { ...liveLocations });
 
 	/** Detect device's color scheme. */
 	const colorScheme = useColorScheme();
@@ -135,8 +156,8 @@ function StoreProvider({ children }) {
 							value={{
 								recordingData,
 								hasRecordingData,
-								fetchSTL,
-								statusSTL,
+								fetchSharedSamples,
+								statusSharedSamples,
 							}}
 						>
 							{children}
@@ -152,37 +173,69 @@ StoreProvider.propTypes = {
 	children: PropTypes.element,
 };
 
-/** Custom hook to get live locations from context. */
+/**
+ * Custom hook to get live locations from context.
+ *
+ * @returns {object} Context object responsible for Location data.
+ */
 export function useLocation() {
 	return useContext(LocationContext);
 }
 
-/** Custom hook to update live locations from context. */
+/**
+ * Custom hook to update live locations from context.
+ *
+ * @returns {object} Context object responsible for
+ * Location Dispatch action.
+ */
 export function useLocationDispatch() {
 	return useContext(LocationDispatchContext);
 }
 
-/** Custom hook to get samples from context. */
+/**
+ * Custom hook to get samples from context.
+ *
+ * @returns {object} Context object responsible for Samples data.
+ */
 export function useSamples() {
 	return useContext(SamplesContext);
 }
 
-/** Custom hook to get samples_to_locations from context. */
+/**
+ * Custom hook to get samples_to_locations from context.
+ *
+ * @returns {object} Context object responsible for Samples
+ * to Locations data.
+ */
 export function useSamplesToLocations() {
 	return useContext(SamplesToLocationsContext);
 }
 
-/** Custom hook to get profile from context. */
+/**
+ * Custom hook to get profile from context.
+ *
+ * @returns {object} Context object responsible for Profile data.
+ */
 export function useProfile() {
 	return useContext(ProfileContext);
 }
 
-/** Custom hook to get colors and icons from context. */
+/**
+ * Custom hook to get colors and icons from context.
+ *
+ * @returns {object} Context object responsible for color scheme data.
+ */
 export function useTheme() {
 	return useContext(ThemeContext);
 }
 
-/** Function as reducer for profile. */
+/**
+ * Function as reducer for profile.
+ *
+ * @param {object} state - Object containing Profile data.
+ * @param {object} action - Object containing dispatch data.
+ * @returns {object} Updated Profile data from dispatch payload.
+ */
 function profileReducer(state, action) {
 	switch (action.type) {
 		case 'setPhoto': {

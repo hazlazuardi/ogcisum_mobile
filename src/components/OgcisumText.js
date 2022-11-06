@@ -5,6 +5,14 @@ import PropTypes from 'prop-types';
 import { useTheme } from '../context/Context';
 import { sizes } from '../data/theme';
 
+/**
+ * This is a React Component for OgcisumText.
+ *
+ * @param {object} props - props for this component.
+ * @param {string} props.variant — specify the variant of the Text.
+ * @param {string} props.text — text for the Text component.
+ * @returns {JSX.Element} React component for OgcisumText.
+ */
 function OgcisumText({ variant, text }) {
 	const { themeColors } = useTheme();
 

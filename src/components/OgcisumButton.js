@@ -6,13 +6,16 @@ import { useTheme } from '../context/Context';
 import { sizes } from '../data/theme';
 
 /**
+ * This is a React Component for OgcisumButton.
  *
- * @param {string} text — text in the button
- * @param {function} onPress — function invoked when the button is pressed
- * @param {boolean} fullWidth — specify whether the button should be full width or not
- * @returns React component for ButtonIOS
+ * @param {object} props - props for this component.
+ * @param {string} props.text — text in the button
+ * @param {Function} props.onPress — function invoked when the button is pressed
+ * @param {boolean} props.fullWidth — specify whether the button should be full width or not
+ * @param {boolean} props.disabled — specify whether the button should be full width or not
+ * @returns {JSX.Element} React component for OgcisumButton
  */
-export default function ButtonIOS({ text, onPress, fullWidth, disabled }) {
+function OgcisumButton({ text, onPress, fullWidth, disabled }) {
 	const { themeColors } = useTheme();
 
 	/** Object containing styles that use dynamic conditions. */
@@ -43,7 +46,7 @@ export default function ButtonIOS({ text, onPress, fullWidth, disabled }) {
 	);
 }
 
-ButtonIOS.propTypes = {
+OgcisumButton.propTypes = {
 	text: PropTypes.string,
 	onPress: PropTypes.func,
 	fullWidth: PropTypes.bool,
@@ -68,3 +71,5 @@ const styles = StyleSheet.create({
 		paddingVertical: sizes.padding / 2,
 	},
 });
+
+export default OgcisumButton;

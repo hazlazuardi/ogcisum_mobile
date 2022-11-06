@@ -1,6 +1,11 @@
 import { useEffect, useRef } from 'react';
 
 // Hook
+/**
+ *
+ * @param {string} name - Name of anything you want to check.
+ * @param {object} props - Object containing props for this component.
+ */
 export default function useWhyDidYouUpdate(name, props) {
 	// Get a mutable ref object where we can store props ...
 	// ... for comparison next time this hook runs.

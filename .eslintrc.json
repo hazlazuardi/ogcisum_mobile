@@ -40,7 +40,11 @@
 		"es2021": true
 	},
 	"plugins": ["react", "react-native", "react-hooks"],
-	"extends": ["eslint:recommended", "plugin:react/recommended"],
+	"extends": [
+		"eslint:recommended",
+		"plugin:react/recommended",
+		"plugin:jsdoc/recommended"
+	],
 	"rules": {
 		"react-native/no-unused-styles": 2,
 		"react-native/split-platform-components": 2,
@@ -54,6 +58,13 @@
 				"ignoreClassNames": false,
 				"ignoreStyleProperties": false
 			}
-		]
+		],
+		"react/no-multi-comp": [2, { "ignoreStateless": true }],
+		"react/jsx-pascal-case": 2,
+		"jsx-quotes": ["error", "prefer-double"],
+		"no-multi-spaces": "error"
+	},
+	"globals": {
+		"JSX": "readonly"
 	}
 }

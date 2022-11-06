@@ -2,7 +2,13 @@
 // https://usehooks.com
 
 import { useState, useEffect, useCallback } from 'react';
-// Usage
+/**
+ *
+ * @param {Function} asyncFunction - Async function to use.
+ * @param {boolean} immediate - Flag to indicate whether to run asynFunction
+ * immediately or not.
+ * @returns {object} Object containing response status, data, and error.
+ */
 export default function useFetch(asyncFunction, immediate = true) {
 	const [status, setStatus] = useState('idle');
 	const [value, setValue] = useState(null);
