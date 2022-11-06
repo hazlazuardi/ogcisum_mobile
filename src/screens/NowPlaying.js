@@ -9,20 +9,19 @@ import {
 	RefreshControl,
 } from 'react-native';
 import PropTypes from 'prop-types';
-
 import { WebView } from 'react-native-webview';
+
 import {
 	useLocation,
 	useProfile,
 	useSamples,
 	useTheme,
 } from '../context/Context';
+
 import { colors, sizes } from '../data/theme';
 
-import ButtonIOS from '../components/ButtonIOS';
-import HeaderText from '../components/HeaderText';
-import BodyText from '../components/BodyText';
-import TitleText from '../components/TitleText';
+import OgcisumButton from '../components/OgcisumButton';
+import OgcisumText from '../components/OgcisumText';
 
 /**
  * React component for main Now Playing page
@@ -69,7 +68,7 @@ function NowPlaying() {
 	const webViewRef = useRef();
 
 	/**
-	 * Function for onPress function on ButtonIOS
+	 * Function for onPress function on OgcisumButton
 	 *
 	 * @callback onLoadWebview
 	 * */
@@ -130,8 +129,8 @@ function NowPlaying() {
 					</>
 				) : (
 					<View style={styles.section}>
-						<HeaderText text={'No music nearby'} />
-						<BodyText text={"Oh it's so quiet here..."} />
+						<OgcisumText variant={'header'} text={'No music nearby'} />
+						<OgcisumText variant={'body'} text={"Oh it's so quiet here..."} />
 					</View>
 				)}
 			</ScrollView>
@@ -171,7 +170,8 @@ function ProfileListItem({ isUser }) {
 					style={styles.profilePicture}
 				/>
 			</View>
-			<BodyText
+			<OgcisumText
+				variant={'body'}
 				text={isUser ? profile.name || 'Enter Your Name' : 'And Others...'}
 			/>
 		</View>
@@ -185,7 +185,7 @@ ProfileListItem.propTypes = {
 function ProfileLists() {
 	return (
 		<View style={styles.section}>
-			<TitleText text={'Currently At This Location: '} />
+			<OgcisumText variant={'title'} text={'Currently At This Location: '} />
 			<ProfileListItem isUser={true} />
 			<ProfileListItem />
 		</View>
@@ -202,7 +202,7 @@ function PlayButton({ webViewState, handlePlay }) {
 		buttonText = 'Loading Samples..';
 	}
 	return (
-		<ButtonIOS
+		<OgcisumButton
 			text={buttonText}
 			onPress={handlePlay}
 			fullWidth
@@ -230,8 +230,9 @@ function MusicPlayer({ nearbyLocation, webViewState, handlePlay }) {
 						/>
 					</View>
 					<View style={styles.headerTextContainer}>
-						<HeaderText text={nearbyLocation.location} />
-						<BodyText
+						<OgcisumText variant={'header'} text={nearbyLocation.location} />
+						<OgcisumText
+							variant={'body'}
 							text={`${nearbyLocation.suburb}, ${nearbyLocation.state}`}
 						/>
 					</View>

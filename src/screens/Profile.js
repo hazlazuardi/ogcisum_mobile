@@ -16,7 +16,7 @@ import PropTypes from 'prop-types';
 
 import { launchImageLibrary } from 'react-native-image-picker';
 import KeyboardAvoidingView from 'react-native/Libraries/Components/Keyboard/KeyboardAvoidingView';
-import ButtonIOS from '../components/ButtonIOS';
+import ButtonIOS from '../components/OgcisumButton';
 import { useProfile, useTheme } from '../context/Context';
 import { colors, sizes } from '../data/theme';
 
