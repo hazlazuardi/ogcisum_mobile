@@ -42,7 +42,7 @@ function Map() {
 
 	/**
 	 * useEffect to watch user's position in real time.
-	 * It also store the current user location into
+	 * It also stores the current user location into
 	 * live location's userLocation state in Context.
 	 */
 	useEffect(() => {
@@ -67,19 +67,19 @@ function Map() {
 	}, [locationPermission, musicLocations, setLiveLocations]);
 
 	/**
-	 * useEffect to calculate nearest location from user and
-	 * store the current nearest location into live location's
+	 * useEffect to calculate the nearest location from user and
+	 * store the current the nearest location into live location's
 	 * nearbyLocation state in Context.
 	 */
 	useEffect(() => {
 		/**
-		 * This is a function to get nearest location relative to user.
-		 * This function is inside a useEffect as a best practice since-
+		 * This is a function to get the nearest location relative to user.
+		 * This function is inside a useEffect as a best practice since
 		 * nothing uses this function anywhere else.
 		 *
 		 * @param {object} userCoordinate - Object containing user coordinate.
 		 * @param {Array} musicCoordinates - Array containing all music locations data.
-		 * @returns {object} Object containing nearest location data.
+		 * @returns {object} Object containing the nearest location data.
 		 */
 		function calculateDistance(userCoordinate, musicCoordinates) {
 			const nearestLocations = musicCoordinates
@@ -87,7 +87,7 @@ function Map() {
 					const metres = getDistance(userCoordinate, location.coordinates);
 					location.distance = {
 						metres: metres,
-						isNear: metres <= 100 ? true : false,
+						isNear: metres <= 100,
 					};
 					return location;
 				})
