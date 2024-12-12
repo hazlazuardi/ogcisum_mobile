@@ -1,4 +1,4 @@
-This project is the mobile app version of Ogcisum made with [React Native](https://reactnative.dev/).
+I developed the mobile app version of Ogcisum using [React Native](https://reactnative.dev/). You can find the web version at [Ogcisum Web](https://ogcisum-web.vercel.app)
 
 <br>
 
